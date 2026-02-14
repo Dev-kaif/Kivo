@@ -6,7 +6,7 @@ import {
     updateBoardSchema,
     idParamSchema,
 } from "../validators/board.schema";
-
+import { AppError } from "../utils/appError";
 import { z } from "zod";
 
 // Create Board
@@ -28,6 +28,13 @@ export const createBoard = async (
         if (error instanceof z.ZodError) {
             return res.status(400).json({ error: error.message });
         }
+
+        if (error instanceof AppError) {
+            return res.status(error.statusCode).json({
+                error: error.message,
+            });
+        }
+
         console.log(error)
 
         return res.status(500).json({ error: "Internal Server Error" });
@@ -54,7 +61,7 @@ export const getBoards = async (
 };
 
 
-// GET SINGLE BOARD
+// Get single Board
 export const getBoard = async (
     req: AuthRequest<{ id: string }>,
     res: Response
@@ -67,12 +74,6 @@ export const getBoard = async (
             id
         );
 
-        if (!board) {
-            return res.status(404).json({
-                error: "Board not found",
-            });
-        }
-
         return res.json(board);
 
     } catch (error: any) {
@@ -80,8 +81,10 @@ export const getBoard = async (
             return res.status(400).json({ error: error.message });
         }
 
-        if (error.message === "Access denied") {
-            return res.status(403).json({ error: "Access denied" });
+        if (error instanceof AppError) {
+            return res.status(error.statusCode).json({
+                error: error.message,
+            });
         }
 
         return res.status(500).json({
@@ -114,6 +117,12 @@ export const updateBoard = async (
             return res.status(400).json({ error: error.message });
         }
 
+        if (error instanceof AppError) {
+            return res.status(error.statusCode).json({
+                error: error.message,
+            });
+        }
+
         return res.status(500).json({
             error: "Failed to update board",
         });
@@ -139,6 +148,12 @@ export const deleteBoard = async (
     } catch (error: any) {
         if (error.message === "Access denied") {
             return res.status(403).json({ error: "Access denied" });
+        }
+
+        if (error instanceof AppError) {
+            return res.status(error.statusCode).json({
+                error: error.message,
+            });
         }
 
         return res.status(500).json({
