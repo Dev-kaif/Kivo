@@ -15,8 +15,10 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  boardsOwned  Board[]       @relation("BoardOwner")
-  boardsMember BoardMember[]
+  boardsOwned   Board[]       @relation("BoardOwner")
+  boardsMember  BoardMember[]
+  tasksAssigned Task[]        @relation("TaskAssignees")
+  activities    ActivityLog[]
 }
 
 model Board {
@@ -28,9 +30,17 @@ model Board {
   ownerId String
   owner   User   @relation("BoardOwner", fields: [ownerId], references: [id])
 
-  members BoardMember[]
+  lists      List[]
+  members    BoardMember[]
+  activities ActivityLog[]
 
   @@index([ownerId])
+}
+
+enum MemberRole {
+  ADMIN
+  MEMBER
+  VIEWER
 }
 
 model BoardMember {
@@ -48,8 +58,78 @@ model BoardMember {
   @@index([userId])
 }
 
-enum MemberRole {
-  ADMIN
-  MEMBER
-  VIEWER
+model List {
+  id        String   @id @default(uuid())
+  title     String
+  position  Float    @default(0)
+  boardId   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  board Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  tasks Task[]
+
+  @@index([boardId])
+  @@index([boardId, position])
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+model Task {
+  id          String    @id @default(uuid())
+  title       String
+  description String?
+  position    Float     @default(0)
+  priority    Priority  @default(MEDIUM)
+  dueDate     DateTime?
+
+  listId String
+  list   List   @relation(fields: [listId], references: [id], onDelete: Cascade)
+
+  assignees  User[]        @relation("TaskAssignees")
+  activities ActivityLog[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([listId])
+  @@index([priority])
+  @@index([listId, position])
+}
+
+enum ActivityAction {
+  TASK_CREATED
+  TASK_UPDATED
+  TASK_MOVED
+  TASK_DELETED
+  USER_ASSIGNED
+  USER_REMOVED
+  BOARD_CREATED
+}
+
+model ActivityLog {
+  id      String         @id @default(uuid())
+  action  ActivityAction
+  details Json?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  boardId String
+  board   Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
+
+  taskId String?
+  task   Task?   @relation(fields: [taskId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+
+  @@index([boardId])
+  @@index([taskId])
+  @@index([userId])
+  @@index([createdAt])
 }
