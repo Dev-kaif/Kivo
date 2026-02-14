@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
-import { signUp, login } from '../services/auth.service.js';
-import { signUpSchema, loginSchema } from '../validators/auth.schema.js';
-import { AppError } from '../utils/appError.js';
+import { signUp, login } from '../services/auth.service';
+import { signUpSchema, loginSchema } from '../validators/auth.schema';
+import { AppError } from '../utils/appError';
 
 export const signUpController = async (req: Request, res: Response) => {
     try {

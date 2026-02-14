@@ -1,8 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import authRoutes from './routes/auth.routes.js';
-
+import authRoutes from './routes/auth.routes';
 const app = express();
 
 app.use(helmet());

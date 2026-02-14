@@ -1,10 +1,10 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
-import { signUpSchema, loginSchema } from '../validators/auth.schema.js';
-import db from '../lib/db.js';
-import { JWT_SECRET } from '../config/env.js';
-import { AppError } from '../utils/appError.js';
+import { signUpSchema, loginSchema } from '../validators/auth.schema';
+import db from '../lib/db';
+import { JWT_SECRET } from '../config/env';
+import { AppError } from '../utils/appError';
 
 const SALT_ROUNDS = 10;
 
