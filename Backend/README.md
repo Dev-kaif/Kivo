@@ -1,4 +1,4 @@
-# Real-Time Kanban Backend API
+# Real-Time Backend API
 
 A production-ready, real-time backend for a Kanban-style collaboration platform (similar to Trello / Notion).
 
