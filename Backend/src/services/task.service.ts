@@ -48,11 +48,17 @@ export const createTask = async (
             assignees: {
                 connect: {
                     id: userId
-                }
+                },
             },
         },
         include: {
-            assignees: true
+            assignees: {
+                select: {
+                    id: true,
+                    name: true,
+                    email: true
+                }
+            }
         }
     });
 

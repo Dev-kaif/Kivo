@@ -7,5 +7,6 @@ const router = Router();
 router.use(authenticate);
 
 router.post('/', ListController.createList);
+router.delete('/:listId', ListController.deleteList);
 
 export default router;

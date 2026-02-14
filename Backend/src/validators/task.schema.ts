@@ -18,8 +18,3 @@ export const moveTaskBodySchema = z.object({
         .number()
         .finite("New position must be a valid number"),
 });
-
-export const createListSchema = z.object({
-    boardId: z.string().uuid("Invalid board ID"),
-    title: z.string().min(1, "Title is required"),
-});

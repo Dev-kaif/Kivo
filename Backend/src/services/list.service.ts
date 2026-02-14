@@ -52,3 +52,56 @@ export const createList = async (
 
     return list;
 };
+
+export const deleteList = async (
+    userId: string,
+    listId: string
+) => {
+
+    // Verify list exists & user is board member
+    const list = await db.list.findFirst({
+        where: {
+            id: listId,
+            board: {
+                members: {
+                    some: { userId }
+                }
+            }
+        },
+        include: {
+            board: {
+                select: { id: true }
+            }
+        }
+    });
+
+    if (!list) {
+        throw new AppError(
+            "List not found or access denied",
+            404
+        );
+    }
+
+    const member = await db.boardMember.findUnique({
+        where: {
+            boardId_userId: {
+                boardId: list.board.id,
+                userId
+            }
+        }
+    });
+
+    if (!member || member.role !== "ADMIN") {
+        throw new AppError("Only admins can delete lists", 403);
+    }
+
+    await db.list.delete({
+        where: { id: listId }
+    });
+
+    getIO()
+        .to(list.board.id)
+        .emit("list:deleted", { listId });
+
+    return list;
+};
