@@ -1,28 +1,28 @@
+import z from 'zod';
 import db from '../lib/db';
 import { getIO } from '../websocket/socket';
 import { AppError } from "../utils/appError";
 import { logActivity } from "../utils/logActivity";
 import { ActivityAction } from "../../generated/prisma/enums";
+import { createTaskBodySchema, updateTaskBodySchema } from '../validators/task.schema';
 
 export const createTask = async (
     userId: string,
-    listId: string,
-    title: string
+    input: z.infer<typeof createTaskBodySchema>
 ) => {
+
+    const { listId, title, description, priority, dueDate } = input;
+
     const list = await db.list.findFirst({
         where: {
             id: listId,
             board: {
                 members: {
-                    some: {
-                        userId
-                    }
+                    some: { userId },
                 },
             },
         },
-        select: {
-            boardId: true
-        },
+        select: { boardId: true },
     });
 
     if (!list) {
@@ -30,12 +30,8 @@ export const createTask = async (
     }
 
     const lastTask = await db.task.findFirst({
-        where: {
-            listId
-        },
-        orderBy: {
-            position: "desc"
-        },
+        where: { listId },
+        orderBy: { position: "desc" },
     });
 
     const newPosition = lastTask
@@ -45,12 +41,13 @@ export const createTask = async (
     const task = await db.task.create({
         data: {
             title,
+            description,
+            priority,
+            dueDate,
             listId,
             position: newPosition,
             assignees: {
-                connect: {
-                    id: userId
-                },
+                connect: { id: userId },
             },
         },
         include: {
@@ -69,9 +66,7 @@ export const createTask = async (
         userId,
         boardId: list.boardId,
         taskId: task.id,
-        details: {
-            title: task.title
-        },
+        details: { title: task.title },
     });
 
     getIO().to(list.boardId).emit("task:created", task);
@@ -193,10 +188,10 @@ export const deleteTask = async (
 };
 
 
-export const renameTask = async (
+export const updateTask = async (
     userId: string,
     taskId: string,
-    newTitle: string
+    input: z.infer<typeof updateTaskBodySchema>
 ) => {
 
     const task = await db.task.findFirst({
@@ -207,7 +202,7 @@ export const renameTask = async (
                     members: {
                         some: {
                             userId
-                        }
+                        },
                     },
                 },
             },
@@ -216,7 +211,7 @@ export const renameTask = async (
             list: {
                 select: {
                     boardId: true
-                }
+                },
             },
         },
     });
@@ -229,9 +224,7 @@ export const renameTask = async (
         where: {
             id: taskId
         },
-        data: {
-            title: newTitle
-        },
+        data: input,
     });
 
     await logActivity({
@@ -240,8 +233,13 @@ export const renameTask = async (
         boardId: task.list.boardId,
         taskId,
         details: {
-            oldTitle: task.title,
-            newTitle,
+            old: {
+                title: task.title,
+                description: task.description,
+                priority: task.priority,
+                dueDate: task.dueDate,
+            },
+            new: input,
         },
     });
 
@@ -249,4 +247,3 @@ export const renameTask = async (
 
     return updated;
 };
-

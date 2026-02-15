@@ -17,13 +17,11 @@ export const createTask = async (
     res: Response
 ) => {
     try {
-        const { listId, title } = createTaskBodySchema.parse(req.body);
-
+        const data = createTaskBodySchema.parse(req.body);
 
         const task = await TaskService.createTask(
             req.user!.userId,
-            listId,
-            title,
+            data
         );
 
         return res.status(201).json(task);
@@ -31,7 +29,9 @@ export const createTask = async (
     } catch (error: any) {
 
         if (error instanceof z.ZodError) {
-            return res.status(400).json({ error: error.message });
+            return res.status(400).json({
+                error: error.message,
+            });
         }
 
         if (error instanceof AppError) {
@@ -46,6 +46,7 @@ export const createTask = async (
         });
     }
 };
+
 
 
 // move task
@@ -95,12 +96,12 @@ export const updateTask = async (
     try {
         const { taskId } = taskIdParamSchema.parse(req.params);
 
-        const { title: newTitle } = updateTaskBodySchema.parse(req.body);
+        const data = updateTaskBodySchema.parse(req.body);
 
-        const task = await TaskService.renameTask(
+        const task = await TaskService.updateTask(
             req.user!.userId,
             taskId,
-            newTitle,
+            data,
         );
 
         return res.json(task);

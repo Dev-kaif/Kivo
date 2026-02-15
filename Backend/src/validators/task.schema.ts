@@ -2,10 +2,10 @@ import { z } from "zod";
 
 export const createTaskBodySchema = z.object({
     listId: z.string().uuid("Invalid list ID"),
-    title: z
-        .string()
-        .min(1, "Title is required")
-        .max(200, "Title must be under 200 characters"),
+    title: z.string().min(1, "Title is required"),
+    description: z.string().optional(),
+    priority: z.enum(["LOW", "MEDIUM", "HIGH", "URGENT"]).optional(),
+    dueDate: z.coerce.date().optional(),
 });
 
 export const taskIdParamSchema = z.object({
@@ -20,5 +20,8 @@ export const moveTaskBodySchema = z.object({
 });
 
 export const updateTaskBodySchema = z.object({
-    title: z.string()
+    title: z.string().min(1).optional(),
+    description: z.string().optional(),
+    priority: z.enum(["LOW", "MEDIUM", "HIGH", "URGENT"]).optional(),
+    dueDate: z.coerce.date().optional(),
 });
