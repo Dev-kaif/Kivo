@@ -3,7 +3,7 @@ import { AuthRequest } from "../middleware/auth.middleware";
 import * as ListService from "../services/list.service";
 import { z } from "zod";
 import { AppError } from "../utils/appError";
-import { createListSchema, listIdParamSchema } from "../validators/list.schema";
+import { createListSchema, listIdParamSchema, updateListSchema } from "../validators/list.schema";
 
 export const createList = async (
     req: AuthRequest,
@@ -84,7 +84,7 @@ export const updateList = async (
 ) => {
     try {
         const { listId } = listIdParamSchema.parse(req.params);
-        const { title: newTitle } = createListSchema.parse(req.body);
+        const { title: newTitle } = updateListSchema.parse(req.body);
 
         await ListService.renameList(
             req.user!.userId,

@@ -1,27 +1,28 @@
 import db from '../lib/db';
 import { getIO } from '../websocket/socket';
 import { AppError } from "../utils/appError";
-
+import { logActivity } from "../utils/logActivity";
+import { ActivityAction } from "../../generated/prisma/enums";
 
 export const createTask = async (
     userId: string,
     listId: string,
     title: string
 ) => {
-
-    // Verify user is board member
     const list = await db.list.findFirst({
         where: {
             id: listId,
             board: {
                 members: {
-                    some: { userId }
-                }
-            }
+                    some: {
+                        userId
+                    }
+                },
+            },
         },
         select: {
             boardId: true
-        }
+        },
     });
 
     if (!list) {
@@ -37,8 +38,9 @@ export const createTask = async (
         },
     });
 
-    // gap
-    const newPosition = lastTask ? lastTask.position + 65536 : 65536;
+    const newPosition = lastTask
+        ? lastTask.position + 65536
+        : 65536;
 
     const task = await db.task.create({
         data: {
@@ -56,21 +58,19 @@ export const createTask = async (
                 select: {
                     id: true,
                     name: true,
-                    email: true
-                }
-            }
-        }
+                    email: true,
+                },
+            },
+        },
     });
 
-    await db.activityLog.create({
-        data: {
-            action: "TASK_CREATED",
-            userId,
-            boardId: list.boardId,
-            taskId: task.id,
-            details: {
-                title: task.title
-            },
+    await logActivity({
+        action: ActivityAction.TASK_CREATED,
+        userId,
+        boardId: list.boardId,
+        taskId: task.id,
+        details: {
+            title: task.title
         },
     });
 
@@ -87,7 +87,7 @@ export const moveTask = async (
     newPosition: number
 ) => {
 
-    // Ensure task exists and user is board member
+
     const task = await db.task.findFirst({
         where: {
             id: taskId,
@@ -97,17 +97,13 @@ export const moveTask = async (
                         some: {
                             userId
                         }
-                    }
-                }
-            }
+                    },
+                },
+            },
         },
         include: {
-            list: {
-                select: {
-                    boardId: true
-                }
-            }
-        }
+            list: { select: { boardId: true } },
+        },
     });
 
     if (!task) {
@@ -123,19 +119,23 @@ export const moveTask = async (
             position: newPosition,
         },
         include: {
-            list: true
-        }
+            list: {
+                select: {
+                    boardId: true
+                }
+            },
+        },
     });
 
-    await db.activityLog.create({
-        data: {
-            action: "TASK_UPDATED",
-            userId,
-            boardId: updatedTask.list.boardId,
-            taskId: updatedTask.id,
-            details: {
-                title: updatedTask.title
-            },
+    await logActivity({
+        action: ActivityAction.TASK_MOVED,
+        userId,
+        boardId: updatedTask.list.boardId,
+        taskId: updatedTask.id,
+        details: {
+            fromListId: task.listId,
+            toListId: newListId,
+            newPosition,
         },
     });
 
@@ -179,9 +179,74 @@ export const deleteTask = async (
         where: { id: taskId }
     });
 
+    await logActivity({
+        action: ActivityAction.TASK_DELETED,
+        userId,
+        boardId: task.list.boardId,
+        taskId,
+        details: { title: task.title },
+    });
+
     getIO().to(task.list.boardId).emit("task:deleted", { taskId });
 
     return task;
 };
 
+
+export const renameTask = async (
+    userId: string,
+    taskId: string,
+    newTitle: string
+) => {
+
+    const task = await db.task.findFirst({
+        where: {
+            id: taskId,
+            list: {
+                board: {
+                    members: {
+                        some: {
+                            userId
+                        }
+                    },
+                },
+            },
+        },
+        include: {
+            list: {
+                select: {
+                    boardId: true
+                }
+            },
+        },
+    });
+
+    if (!task) {
+        throw new AppError("Task not found or access denied", 404);
+    }
+
+    const updated = await db.task.update({
+        where: {
+            id: taskId
+        },
+        data: {
+            title: newTitle
+        },
+    });
+
+    await logActivity({
+        action: ActivityAction.TASK_UPDATED,
+        userId,
+        boardId: task.list.boardId,
+        taskId,
+        details: {
+            oldTitle: task.title,
+            newTitle,
+        },
+    });
+
+    getIO().to(task.list.boardId).emit("task:updated", updated);
+
+    return updated;
+};
 

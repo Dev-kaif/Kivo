@@ -5,6 +5,7 @@ import {
     createTaskBodySchema,
     moveTaskBodySchema,
     taskIdParamSchema,
+    updateTaskBodySchema,
 } from "../validators/task.schema";
 import { z } from "zod";
 import { AppError } from "../utils/appError";
@@ -64,6 +65,42 @@ export const moveTask = async (
             taskId,
             newListId,
             newPosition
+        );
+
+        return res.json(task);
+
+    } catch (error: any) {
+
+        if (error instanceof z.ZodError) {
+            return res.status(400).json({ error: error.message });
+        }
+
+        if (error instanceof AppError) {
+            return res.status(error.statusCode).json({
+                error: error.message,
+            });
+        }
+
+        console.error(error);
+        return res.status(500).json({
+            error: "Failed to move task",
+        });
+    }
+};
+
+export const updateTask = async (
+    req: AuthRequest<{ taskId: string }>,
+    res: Response
+) => {
+    try {
+        const { taskId } = taskIdParamSchema.parse(req.params);
+
+        const { title: newTitle } = updateTaskBodySchema.parse(req.body);
+
+        const task = await TaskService.renameTask(
+            req.user!.userId,
+            taskId,
+            newTitle,
         );
 
         return res.json(task);

@@ -11,6 +11,7 @@ router.post('/', TaskController.createTask);
 
 // Move a task
 router.put('/:taskId/move', TaskController.moveTask);
+router.put('/:taskId', TaskController.updateTask);
 
 // Delete a task
 router.delete('/:taskId', TaskController.deleteTask);

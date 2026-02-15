@@ -5,6 +5,10 @@ export const createListSchema = z.object({
     title: z.string().min(1, "Title is required"),
 });
 
+export const updateListSchema = z.object({
+    title: z.string().min(1, "Title is required"),
+});
+
 export const listIdParamSchema = z.object({
     listId: z.string().uuid("Invalid task ID"),
 });

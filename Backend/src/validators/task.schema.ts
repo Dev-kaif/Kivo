@@ -18,3 +18,7 @@ export const moveTaskBodySchema = z.object({
         .number()
         .finite("New position must be a valid number"),
 });
+
+export const updateTaskBodySchema = z.object({
+    title: z.string()
+});
