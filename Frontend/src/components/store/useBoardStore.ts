@@ -60,27 +60,30 @@ export const useBoardStore = create<BoardState>((set, get) => ({
         })
     })),
 
-    updateTask: (updatedTask) => set((state) => {
+    updateTask: (updatedTask) =>
+        set((state) => {
+            const newLists = state.lists.map((list) => {
 
-        // Remove from old location
-        const cleanLists = state.lists.map(l => ({
-            ...l,
-            tasks: l.tasks.filter(t => t.id !== updatedTask.id)
-        }));
+                // Remove task everywhere
+                const filteredTasks = list.tasks.filter(
+                    (t) => t.id !== updatedTask.id
+                );
 
-        // Add to new location
-        return {
-            lists: cleanLists.map(l => {
-                if (l.id === updatedTask.listId) {
+                // Add to correct list
+                if (list.id === updatedTask.listId) {
                     return {
-                        ...l,
-                        tasks: [...l.tasks, updatedTask].sort((a, b) => a.position - b.position)
+                        ...list,
+                        tasks: [...filteredTasks, updatedTask].sort(
+                            (a, b) => a.position - b.position
+                        ),
                     };
                 }
-                return l;
-            })
-        };
-    }),
+
+                return { ...list, tasks: filteredTasks };
+            });
+
+            return { lists: newLists };
+        }),
 
     moveTask: (activeId, fromListId, toListId, toIndex) => set((state) => {
         let newLists = [...state.lists];

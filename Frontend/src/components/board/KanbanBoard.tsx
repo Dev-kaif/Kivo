@@ -1,4 +1,5 @@
 'use client';
+
 import { useEffect, useRef, useState } from 'react';
 import {
     DndContext,
@@ -7,7 +8,6 @@ import {
     useSensors,
     PointerSensor,
     DragStartEvent,
-    DragEndEvent,
     DragOverEvent,
     closestCorners,
 } from '@dnd-kit/core';
@@ -23,7 +23,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { List, Task } from '@/lib/types';
 
-
 interface KanbanBoardProps {
     boardId: string;
     initialLists: List[];
@@ -32,20 +31,40 @@ interface KanbanBoardProps {
 function computePosition(tasks: Task[], targetIndex: number): number {
     if (tasks.length <= 1) return 65536;
     if (targetIndex === 0) return tasks[1].position / 2;
-    if (targetIndex === tasks.length - 1) return tasks[targetIndex - 1].position + 65536;
-    return (tasks[targetIndex - 1].position + tasks[targetIndex + 1].position) / 2;
+    if (targetIndex === tasks.length - 1)
+        return tasks[targetIndex - 1].position + 65536;
+    return (
+        (tasks[targetIndex - 1].position +
+            tasks[targetIndex + 1].position) /
+        2
+    );
 }
 
-export function KanbanBoard({ boardId, initialLists }: KanbanBoardProps) {
-    const { lists, setLists, activeTask, setActiveTask, moveTask, updateTask, addList, addTask } = useBoardStore();
+export function KanbanBoard({
+    boardId,
+    initialLists,
+}: KanbanBoardProps) {
+    const {
+        lists,
+        setLists,
+        activeTask,
+        setActiveTask,
+        moveTask,
+        updateTask,
+        addList,
+        addTask,
+    } = useBoardStore();
 
-    const { createList, moveTask: moveTaskApi } = useBoardMutations(boardId);
+    const {
+        createList,
+        moveTask: moveTaskApi,
+        isCreatingList,
+    } = useBoardMutations(boardId);
 
     const [isMounted, setIsMounted] = useState(false);
     const [isAddingList, setIsAddingList] = useState(false);
     const [newListTitle, setNewListTitle] = useState('');
 
-    // Refs for Drag Logic
     const dragState = useRef<{
         activeId: string;
         fromListId: string;
@@ -63,30 +82,31 @@ export function KanbanBoard({ boardId, initialLists }: KanbanBoardProps) {
     // Socket Listeners
     useEffect(() => {
         if (!socket) return;
+
         socket.emit('joinBoard', boardId);
 
-        const handleTaskMoved = (task: Task) => updateTask(task);
-        const handleTaskCreated = (task: Task) => addTask(task);
-        const handleListCreated = (list: List) => addList(list);
-
-        socket.on('task:moved', handleTaskMoved);
-        socket.on('task:created', handleTaskCreated);
-        socket.on('list:created', handleListCreated);
+        socket.on('task:moved', updateTask);
+        socket.on('task:created', addTask);
+        socket.on('list:created', addList);
 
         return () => {
-            socket.off('task:moved', handleTaskMoved);
-            socket.off('task:created', handleTaskCreated);
-            socket.off('list:created', handleListCreated);
+            socket.off('task:moved', updateTask);
+            socket.off('task:created', addTask);
+            socket.off('list:created', addList);
         };
     }, [socket, boardId, updateTask, addTask, addList]);
 
-    // Sensors
+
     const sensors = useSensors(
-        useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
+        useSensor(PointerSensor, {
+            activationConstraint: { distance: 5 },
+        })
     );
 
+    // List Creation
     const handleAddListSubmit = async () => {
         if (!newListTitle.trim()) return;
+
         try {
             await createList(newListTitle);
             setNewListTitle('');
@@ -96,12 +116,17 @@ export function KanbanBoard({ boardId, initialLists }: KanbanBoardProps) {
         }
     };
 
+
     const onDragStart = (event: DragStartEvent) => {
         if (event.active.data.current?.type !== 'Task') return;
+
         const task = event.active.data.current.task as Task;
         setActiveTask(task);
 
-        const fromList = lists.find((l) => l.tasks.some((t) => t.id === task.id));
+        const fromList = lists.find((l) =>
+            l.tasks.some((t) => t.id === task.id)
+        );
+
         if (!fromList) return;
 
         dragState.current = {
@@ -112,28 +137,31 @@ export function KanbanBoard({ boardId, initialLists }: KanbanBoardProps) {
         };
     };
 
-    const onDragOver = (event: DragOverEvent) => {
-        const { active, over } = event;
-        if (!over || !dragState.current) return;
 
-        const overId = over.id as string;
-        const overList = lists.find(l => l.id === overId || l.tasks.some(t => t.id === overId));
+    const onDragOver = (event: DragOverEvent) => {
+        if (!dragState.current || !event.over) return;
+
+        const overId = event.over.id as string;
+
+        const overList = lists.find(
+            (l) =>
+                l.id === overId ||
+                l.tasks.some((t) => t.id === overId)
+        );
 
         if (!overList) return;
 
-        const overListTasks = overList.tasks.filter(t => t.id !== active.id);
-        const overTaskIndex = overListTasks.findIndex(t => t.id === overId);
+        const tasksWithoutActive = overList.tasks.filter(
+            (t) => t.id !== dragState.current!.activeId
+        );
 
-        let insertIndex: number;
-        if (overTaskIndex >= 0) {
-            const cursorBelow = active.rect.current.translated &&
-                active.rect.current.translated.top > over.rect.top + over.rect.height / 2;
-            insertIndex = overTaskIndex + (cursorBelow ? 1 : 0);
-        } else {
-            insertIndex = overListTasks.length;
-        }
+        const overIndex = tasksWithoutActive.findIndex(
+            (t) => t.id === overId
+        );
 
-        // Store this for onDragEnd
+        const insertIndex =
+            overIndex >= 0 ? overIndex : tasksWithoutActive.length;
+
         dragState.current = {
             ...dragState.current,
             toListId: overList.id,
@@ -141,32 +169,45 @@ export function KanbanBoard({ boardId, initialLists }: KanbanBoardProps) {
         };
     };
 
-    const onDragEnd = async (event: DragEndEvent) => {
-        const currentDrag = dragState.current;
+
+    const onDragEnd = async () => {
+        const current = dragState.current;
         setActiveTask(null);
         dragState.current = null;
 
-        if (!currentDrag || !event.over) return;
+        if (!current) return;
 
-        const { activeId, fromListId, toListId, toIndex } = currentDrag;
+        const { activeId, fromListId, toListId, toIndex } =
+            current;
 
         moveTask(activeId, fromListId, toListId, toIndex);
 
-
         const updatedLists = useBoardStore.getState().lists;
-        const destList = updatedLists.find(l => l.id === toListId);
-
+        const destList = updatedLists.find(
+            (l) => l.id === toListId
+        );
         if (!destList) return;
 
-        const finalIndex = destList.tasks.findIndex(t => t.id === activeId);
-        const newPosition = computePosition(destList.tasks, finalIndex);
+        const finalIndex = destList.tasks.findIndex(
+            (t) => t.id === activeId
+        );
+
+        const newPosition = computePosition(
+            destList.tasks,
+            finalIndex
+        );
 
         try {
-            await moveTaskApi({ taskId: activeId, newListId: toListId, newPosition });
+            await moveTaskApi({
+                taskId: activeId,
+                newListId: toListId,
+                newPosition,
+            });
         } catch (error) {
-            console.log(error)
+            console.error('Move failed, reverting');
         }
     };
+
 
     return (
         <DndContext
@@ -182,42 +223,75 @@ export function KanbanBoard({ boardId, initialLists }: KanbanBoardProps) {
                         <BoardColumn
                             key={col.id}
                             list={col}
+                            boardId={boardId}
                         />
                     ))}
                 </SortableContext>
 
-                <div className="min-w-75 w-75">
+                {/* Add List Section */}
+                <div className="min-w-80 w-80">
                     {!isAddingList ? (
                         <button
                             onClick={() => setIsAddingList(true)}
-                            className="w-full h-12.5 rounded-xl border-2 border-dashed border-gray-200 text-gray-400 hover:border-gray-400 hover:text-gray-600 transition-colors flex items-center justify-center font-medium bg-white/50"
+                            className="w-full h-12 rounded-xl border-2 border-dashed border-gray-200  text-gray-500 hover:border-gray-400 hover:text-gray-700  transition-colors flex items-center justify-center gap-2  text-sm font-medium bg-white"
                         >
-                            <Plus className="mr-2 h-4 w-4" /> Add Section
+                            <Plus className="h-4 w-4" />
+                            Add Section
                         </button>
                     ) : (
-                        <div className="bg-white p-3 rounded-xl border shadow-sm space-y-2">
+                        <div className="bg-white p-4 rounded-xl border shadow-sm space-y-3">
                             <Input
                                 autoFocus
-                                placeholder="Section Title..."
+                                placeholder="Section title..."
                                 value={newListTitle}
                                 onChange={(e) => setNewListTitle(e.target.value)}
-                                onKeyDown={(e) => e.key === 'Enter' && handleAddListSubmit()}
+                                disabled={isCreatingList}
+                                onKeyDown={(e) =>
+                                    e.key === 'Enter' && handleAddListSubmit()
+                                }
+                                className="h-10"
                             />
+
                             <div className="flex gap-2">
-                                <Button size="sm" onClick={handleAddListSubmit} className="flex-1 bg-blue-600 hover:bg-blue-700">Add List</Button>
-                                <Button size="sm" variant="ghost" onClick={() => setIsAddingList(false)}><X className="h-4 w-4" /></Button>
+                                <Button
+                                    disabled={isCreatingList || !newListTitle.trim()}
+                                    onClick={handleAddListSubmit}
+                                    className="flex-1"
+                                >
+                                    {isCreatingList ? 'Adding...' : 'Add List'}
+                                </Button>
+
+                                <Button
+                                    variant="outline"
+                                    disabled={isCreatingList}
+                                    onClick={() => {
+                                        setIsAddingList(false);
+                                        setNewListTitle('');
+                                    }}
+                                >
+                                    Cancel
+                                </Button>
                             </div>
                         </div>
                     )}
                 </div>
+
+
             </div>
 
-            {isMounted && createPortal(
-                <DragOverlay>
-                    {activeTask && <TaskCard task={activeTask} isOverlay />}
-                </DragOverlay>,
-                document.body
-            )}
+            {isMounted &&
+                createPortal(
+                    <DragOverlay>
+                        {activeTask && (
+                            <TaskCard
+                                task={activeTask}
+                                isOverlay
+                                boardId={boardId}
+                            />
+                        )}
+                    </DragOverlay>,
+                    document.body
+                )}
         </DndContext>
     );
 }
