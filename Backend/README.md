@@ -188,9 +188,10 @@ Authorization: Bearer <token>
 
 ## 📑 Lists
 
-| Method | Endpoint | Description          |
-| ------ | -------- | -------------------- |
-| POST   | `/lists` | Create list in board |
+| Method | Endpoint         | Description          |
+| ------ | ---------------- | -------------------- |
+| POST   | `/lists`         | Create list in board |
+| DELETE | `/lists/:listId` | Delete list          |
 
 ---
 

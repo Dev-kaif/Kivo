@@ -1,34 +1,28 @@
 import db from "../lib/db.js";
 import { getIO } from "../websocket/socket";
 import { AppError } from "../utils/appError";
+import { logActivity } from "../utils/logActivity";
+import { ActivityAction } from "../../generated/prisma/enums.js";
 
 export const createList = async (
     userId: string,
     boardId: string,
     title: string
 ) => {
-
-    // Verify board exists & user is member
     const board = await db.board.findFirst({
         where: {
             id: boardId,
             members: {
-                some: { userId }
-            }
+                some: { userId },
+            },
         },
-        select: {
-            id: true
-        }
+        select: { id: true },
     });
 
     if (!board) {
-        throw new AppError(
-            "Board not found or access denied",
-            403
-        );
+        throw new AppError("Board not found or access denied", 403);
     }
 
-    // Find last position
     const lastList = await db.list.findFirst({
         where: { boardId },
         orderBy: { position: "desc" },
@@ -38,7 +32,6 @@ export const createList = async (
         ? lastList.position + 65536
         : 65536;
 
-    // Create list
     const list = await db.list.create({
         data: {
             title,
@@ -47,48 +40,49 @@ export const createList = async (
         },
     });
 
-    // Real-time broadcast
+    await logActivity({
+        action: ActivityAction.LIST_CREATED,
+        userId,
+        boardId,
+        details: { title },
+    });
+
     getIO().to(boardId).emit("list:created", list);
 
     return list;
 };
 
+
+
 export const deleteList = async (
     userId: string,
     listId: string
 ) => {
-
-    // Verify list exists & user is board member
     const list = await db.list.findFirst({
         where: {
             id: listId,
             board: {
                 members: {
-                    some: { userId }
-                }
-            }
+                    some: { userId },
+                },
+            },
         },
         include: {
-            board: {
-                select: { id: true }
-            }
-        }
+            board: { select: { id: true } },
+        },
     });
 
     if (!list) {
-        throw new AppError(
-            "List not found or access denied",
-            404
-        );
+        throw new AppError("List not found or access denied", 404);
     }
 
     const member = await db.boardMember.findUnique({
         where: {
             boardId_userId: {
                 boardId: list.board.id,
-                userId
-            }
-        }
+                userId,
+            },
+        },
     });
 
     if (!member || member.role !== "ADMIN") {
@@ -96,7 +90,14 @@ export const deleteList = async (
     }
 
     await db.list.delete({
-        where: { id: listId }
+        where: { id: listId },
+    });
+
+    await logActivity({
+        action: ActivityAction.LIST_DELETED,
+        userId,
+        boardId: list.board.id,
+        details: { listId, title: list.title },
     });
 
     getIO()
@@ -104,4 +105,51 @@ export const deleteList = async (
         .emit("list:deleted", { listId });
 
     return list;
+};
+
+export const renameList = async (
+    userId: string,
+    listId: string,
+    newTitle: string
+) => {
+
+    const list = await db.list.findFirst({
+        where: {
+            id: listId,
+            board: {
+                members: {
+                    some: { userId },
+                },
+            },
+        },
+        include: {
+            board: { select: { id: true } },
+        },
+    });
+
+    if (!list) {
+        throw new AppError("List not found or access denied", 404);
+    }
+
+    const updated = await db.list.update({
+        where: { id: listId },
+        data: { title: newTitle },
+    });
+
+    await logActivity({
+        action: ActivityAction.LIST_UPDATED,
+        userId,
+        boardId: list.board.id,
+        details: {
+            listId,
+            oldTitle: list.title,
+            newTitle,
+        },
+    });
+
+    getIO()
+        .to(list.board.id)
+        .emit("list:updated", updated);
+
+    return updated;
 };

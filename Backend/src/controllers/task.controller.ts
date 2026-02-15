@@ -18,10 +18,11 @@ export const createTask = async (
     try {
         const { listId, title } = createTaskBodySchema.parse(req.body);
 
+
         const task = await TaskService.createTask(
             req.user!.userId,
             listId,
-            title
+            title,
         );
 
         return res.status(201).json(task);
