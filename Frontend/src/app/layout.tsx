@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Providers from "@/lib/providers";
+import QueryProviders from "@/lib/providers";
+import { Toaster } from "sonner";
+import { NuqsAdapter } from 'nuqs/adapters/next/app'
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -17,7 +19,12 @@ export default function RootLayout({
       <body
         className={` antialiased`}
       >
-        <Providers>{children}</Providers>
+        <NuqsAdapter>
+          <QueryProviders>
+            <Toaster />
+            {children}
+          </QueryProviders>
+        </NuqsAdapter>
       </body>
     </html>
   );

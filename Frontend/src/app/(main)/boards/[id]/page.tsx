@@ -13,7 +13,7 @@ export default async function BoardPage({
     const { data: board } = await api.get(`/boards/${id}`);
 
     return (
-        <main className="h-screen bg-gray-50 flex flex-col">
+        <main className="h-[90vh] bg-gray-50 flex flex-col">
             <KanbanBoard boardId={id} initialLists={board.lists} />
         </main>
     );

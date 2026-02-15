@@ -17,7 +17,7 @@ import { BoardColumn } from './BoardColumn';
 import { TaskCard } from './TaskCard';
 import { useSocketStore } from '@/components/store/useSocketStore';
 import { useBoardStore } from '@/components/store/useBoardStore';
-import { useBoardMutations } from '@/components/hooks/useBoardMutations';
+import { useBoardMutations } from '@/components/board/hooks/useBoardMutations';
 import { Plus, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

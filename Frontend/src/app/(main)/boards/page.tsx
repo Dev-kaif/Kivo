@@ -27,7 +27,7 @@ export default function CreateBoardPage() {
             const board = res.data;
 
             // redirect to board page
-            router.push(`/board/${board.id}`);
+            router.push(`/boards/${board.id}`);
 
         } catch (err: any) {
             setError(err.response?.data?.message || "Failed to create board");

@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { useSocketStore } from '@/components/store/useSocketStore';
 
 
-export default function Providers({ children }: { children: React.ReactNode }) {
+export default function QueryProviders({ children }: { children: React.ReactNode }) {
     const [queryClient] = useState(() => new QueryClient());
     const { connect } = useSocketStore();
 

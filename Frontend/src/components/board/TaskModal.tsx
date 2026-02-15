@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import api from '@/lib/api';
 import { Task } from '@/lib/types';
-import { useBoardMutations } from '@/components/hooks/useBoardMutations';
+import { useBoardMutations } from '@/components/board/hooks/useBoardMutations';
 
 interface BoardMember {
     user: {

@@ -16,7 +16,7 @@ import {
 import { cn } from '@/lib/utils';
 import { Task } from '@/lib/types';
 import { TaskModal } from './TaskModal';
-import { useBoardMutations } from '@/components/hooks/useBoardMutations';
+import { useBoardMutations } from '@/components/board/hooks/useBoardMutations';
 import { ConfirmDialog } from '../ui/confirmDailog';
 
 interface TaskCardProps {

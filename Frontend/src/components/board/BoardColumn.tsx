@@ -25,7 +25,7 @@ import { TaskCard } from './TaskCard';
 import { TaskModal } from './TaskModal';
 
 import { List } from '@/lib/types';
-import { useBoardMutations } from '@/components/hooks/useBoardMutations';
+import { useBoardMutations } from '@/components/board/hooks/useBoardMutations';
 import { cn } from '@/lib/utils';
 import { ConfirmDialog } from '@/components/ui/confirmDailog';
 
