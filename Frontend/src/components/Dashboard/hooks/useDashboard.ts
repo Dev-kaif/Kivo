@@ -3,7 +3,6 @@ import type {
     DashboardBoardsInput,
     PaginatedBoardsResponse,
     Activity,
-    Board
 } from "@/lib/types";
 import { dashboardClientQueries } from "../ client/queries";
 

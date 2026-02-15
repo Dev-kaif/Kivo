@@ -1,6 +1,6 @@
 import { useQueryStates } from 'nuqs';
 import { boardParams } from '../server/paramLoader';
 
-export const useBoardParams = () => {
+export const useOwnedBoardsParams = () => {
     return useQueryStates(boardParams)
 }

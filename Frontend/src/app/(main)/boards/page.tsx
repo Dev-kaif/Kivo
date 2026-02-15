@@ -1,70 +1,32 @@
-"use client";
+import { HydrateClient } from "@/lib/hydration";
+import { ErrorBoundary } from "react-error-boundary";
+import { Suspense } from "react";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import api from "@/lib/api";
+import type { SearchParams } from "nuqs/server";
+import { prefetchOwnedBoards } from "@/components/board/server/prefetch";
+import { ownedBoardsParamLoader } from "@/components/board/server/paramLoader";
+import { OwnedBoardsContainer, OwnedBoardsError, OwnedBoardsLoading } from "@/components/board/page/BoardPageComponents";
+import { OwnedBoardsList } from "@/components/board/page/BoardsList";
 
-export default function CreateBoardPage() {
-    const router = useRouter();
+type Props = {
+    searchParams: Promise<SearchParams>;
+};
 
-    const [title, setTitle] = useState("");
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+export default async function page({ searchParams }: Props) {
 
-    const handleCreate = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const params = await ownedBoardsParamLoader(searchParams);
 
-        if (!title.trim()) return;
-
-        setLoading(true);
-        setError(null);
-
-        try {
-            const res = await api.post("/boards", {
-                title,
-            });
-
-            const board = res.data;
-
-            // redirect to board page
-            router.push(`/boards/${board.id}`);
-
-        } catch (err: any) {
-            setError(err.response?.data?.message || "Failed to create board");
-        } finally {
-            setLoading(false);
-        }
-    };
+    await prefetchOwnedBoards(params);
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-background">
-            <form
-                onSubmit={handleCreate}
-                className="w-full max-w-md space-y-4 rounded-lg border p-6 shadow-sm"
-            >
-                <h1 className="text-xl font-semibold">Create New Board</h1>
-
-                {error && (
-                    <p className="text-sm text-red-500">{error}</p>
-                )}
-
-                <input
-                    type="text"
-                    placeholder="Board title"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    className="w-full rounded-md border px-3 py-2"
-                    required
-                />
-
-                <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full rounded-md bg-black py-2 text-white disabled:opacity-50"
-                >
-                    {loading ? "Creating..." : "Create Board"}
-                </button>
-            </form>
-        </div>
+        <OwnedBoardsContainer>
+            <HydrateClient>
+                <ErrorBoundary fallback={<OwnedBoardsError />}>
+                    <Suspense fallback={<OwnedBoardsLoading />}>
+                        <OwnedBoardsList />
+                    </Suspense>
+                </ErrorBoundary>
+            </HydrateClient>
+        </OwnedBoardsContainer>
     );
 }

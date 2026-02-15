@@ -20,8 +20,8 @@ export const boardParams = {
         .withOptions({ clearOnDefault: true }),
 
     type: parseAsStringEnum(['owner', 'member', 'all'])
-        .withDefault('all')
+        .withDefault('owner')
         .withOptions({ clearOnDefault: true }),
 };
 
-export const boardParamsLoader = createLoader(boardParams);
+export const ownedBoardsParamLoader = createLoader(boardParams);

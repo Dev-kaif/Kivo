@@ -1,11 +1,12 @@
 
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
-import { EmptyView, EntityItem, EntityList, ErrorView, LoadingView } from "../Generic/entityComponents";
+import { EmptyView, ErrorView, LoadingView } from "../Generic/entityComponents";
 import { Card, CardContent } from "@/components/ui/card";
 import { Activity } from "@/lib/types";
 import { formatActivityMessage } from "./utils/formatActivity";
+import Link from "next/link";
+import { formatDistanceToNow } from "date-fns";
 
 interface DashboardContainerProps {
     children: ReactNode;
@@ -53,38 +54,61 @@ export const RecentBoardsList = ({
 
     return (
         <div className="space-y-4">
-            <h2 className="text-base font-semibold">Recent Boards</h2>
+            <h2 className="text-base font-semibold">
+                Recent Boards
+            </h2>
 
             {isLoading ? (
-                <div className="min-h-30 flex items-center justify-center">
+                <div className="min-h-32 flex items-center justify-center">
                     <LoadingView message="Loading boards" />
                 </div>
+            ) : recentBoards.length === 0 ? (
+                <EmptyView message="No recent boards found." />
             ) : (
-                <EntityList
-                    items={recentBoards}
-                    emptyView={
-                        <EmptyView message="No recent boards found." />
-                    }
-                    renderItem={(board) => {
-                        return (
-                            <EntityItem
-                                href={`/boards/${board.id}`}
-                                title={board.title}
-                                subtitle={
-                                    <div className="flex items-center gap-2">
-                                        <span>
-                                            Owner: {board.owner.name}
-                                        </span>
+                <div className="flex flex-col gap-3">
+                    {recentBoards.map((board) => (
+                        <Link
+                            key={board.id}
+                            href={`/boards/${board.id}`}
+                        >
+                            <Card
+                                className={cn(
+                                    "px-5 py-4 shadow-none transition-all duration-200",
+                                    "hover:shadow-sm hover:border-primary/30 hover:bg-muted/30",
+                                    "cursor-pointer rounded-xl"
+                                )}
+                            >
+                                <div className="flex items-center justify-between">
+
+                                    {/* Left */}
+                                    <div className="flex items-center gap-4">
+
+                                        {/* Avatar */}
+                                        <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary">
+                                            {board.title.slice(0, 2).toUpperCase()}
+                                        </div>
+
+                                        {/* Info */}
+                                        <div className="flex flex-col">
+                                            <span className="text-sm font-medium">
+                                                {board.title}
+                                            </span>
+
+                                            <span className="text-xs text-muted-foreground">
+                                                Owner: {board.owner.name}
+                                            </span>
+                                        </div>
                                     </div>
-                                }
-                            />
-                        );
-                    }}
-                />
+                                </div>
+                            </Card>
+                        </Link>
+                    ))}
+                </div>
             )}
         </div>
     );
 };
+
 
 
 interface RecentActivityCardProps {

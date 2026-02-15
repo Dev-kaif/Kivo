@@ -60,6 +60,12 @@ export interface Board {
     };
 }
 
+export interface BoardsInput {
+    page: number;
+    pageSize: number;
+    search?: string;
+}
+
 export interface PaginatedBoardsResponse {
     items: Board[];
     page: number;
