@@ -27,17 +27,6 @@ export const createBoard = async (
         },
     });
 
-    await db.activityLog.create({
-        data: {
-            action: "BOARD_CREATED",
-            userId: userId,
-            boardId: board.id,
-            details: {
-                title: board.title,
-            },
-        },
-    });
-
     await logActivity({
         action: ActivityAction.BOARD_CREATED,
         userId,
