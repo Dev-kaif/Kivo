@@ -8,6 +8,7 @@ import {
 } from "../validators/board.schema";
 import { AppError } from "../utils/appError";
 import { z } from "zod";
+import { getBoardsQuerySchema } from "../validators/pagination.schema";
 
 // Create Board
 export const createBoard = async (
@@ -41,26 +42,6 @@ export const createBoard = async (
     }
 };
 
-// Get all Boards
-export const getBoards = async (
-    req: AuthRequest,
-    res: Response
-) => {
-    try {
-        const boards = await BoardService.getUserBoards(
-            req.user!.userId
-        );
-
-        return res.json(boards);
-
-    } catch {
-        return res.status(500).json({
-            error: "Failed to fetch boards",
-        });
-    }
-};
-
-
 // Get single Board
 export const getBoard = async (
     req: AuthRequest<{ id: string }>,
@@ -89,6 +70,43 @@ export const getBoard = async (
 
         return res.status(500).json({
             error: "Internal server error",
+        });
+    }
+};
+
+// Get paginated Boards
+export const getBoards = async (
+    req: AuthRequest,
+    res: Response
+) => {
+    try {
+        const query = getBoardsQuerySchema.parse(req.query);
+
+        const result = await BoardService.getPaginatedBoards(
+            req.user!.userId,
+            query
+        );
+
+        return res.status(200).json(result);
+
+    } catch (error: any) {
+
+        if (error instanceof z.ZodError) {
+            return res.status(400).json({
+                error: error.message,
+            });
+        }
+
+        if (error instanceof AppError) {
+            return res.status(error.statusCode).json({
+                error: error.message,
+            });
+        }
+
+        console.error(error);
+
+        return res.status(500).json({
+            error: 'Failed to fetch boards',
         });
     }
 };

@@ -1,11 +1,14 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+
 import authRoutes from './routes/auth.routes';
 import boardRoutes from './routes/board.routes';
 import memberRoutes from './routes/member.routes';
 import listRoutes from './routes/list.routes';
 import taskRoutes from './routes/task.routes';
+import activtyRoutes from './routes/activity.routes';
+
 import { apiLimiter } from './middleware/rateLimit.middleware';
 import cookieParser from "cookie-parser";
 
@@ -31,6 +34,7 @@ app.use('/api/boards', boardRoutes);
 app.use('/api/members', memberRoutes);
 app.use('/api/lists', listRoutes);
 app.use('/api/tasks', taskRoutes);
+app.use('/api/activity', activtyRoutes);
 
 app.get('/', (req, res) => {
     res.send('API is running...');

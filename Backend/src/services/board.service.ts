@@ -4,6 +4,8 @@ import db from '../lib/db';
 import { AppError } from "../utils/appError";
 import { logActivity } from "../utils/logActivity";
 import { ActivityAction } from "../../generated/prisma/enums";
+import { GetBoardsInput } from '../validators/pagination.schema';
+import { Prisma } from '../../generated/prisma/client';
 
 
 type CreateBoardInput = z.infer<typeof createBoardSchema>;
@@ -220,3 +222,76 @@ export const deleteBoard = async (userId: string, boardId: string) => {
 
     return deleted
 };
+
+export const getPaginatedBoards = async (
+    userId: string,
+    input: GetBoardsInput
+) => {
+    const { page, pageSize, search, type } = input;
+
+    let accessFilter: Prisma.BoardWhereInput;
+
+    if (type === 'owner') {
+        accessFilter = { ownerId: userId };
+    } else if (type === 'member') {
+        accessFilter = {
+            members: { some: { userId } },
+            NOT: { ownerId: userId },
+        };
+    } else {
+        accessFilter = {
+            OR: [
+                { ownerId: userId },
+                { members: { some: { userId } } },
+            ],
+        };
+    }
+
+    // Search Filter
+    const filters: Prisma.BoardWhereInput[] = [accessFilter];
+
+    if (search) {
+        filters.push({
+            title: {
+                contains: search,
+                mode: 'insensitive',
+            },
+        });
+    }
+
+    const where: Prisma.BoardWhereInput = {
+        AND: filters,
+    };
+
+    // Query
+    const [items, totalCount] = await Promise.all([
+        db.board.findMany({
+            skip: (page - 1) * pageSize,
+            take: pageSize,
+            where,
+            include: {
+                owner: {
+                    select: { id: true, name: true, email: true },
+                },
+                _count: {
+                    select: { members: true },
+                },
+            },
+            orderBy: { updatedAt: 'desc' },
+        }),
+        db.board.count({ where }),
+    ]);
+
+    const totalPages = Math.ceil(totalCount / pageSize);
+
+    return {
+        items,
+        page,
+        pageSize,
+        totalCount,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
+    };
+};
+
