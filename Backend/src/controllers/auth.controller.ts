@@ -8,9 +8,16 @@ export const signUpController = async (req: Request, res: Response) => {
     try {
         const validatedData = signUpSchema.parse(req.body);
 
-        const result = await signUp(validatedData);
+        const { user, token } = await signUp(validatedData);
 
-        res.status(201).json(result);
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+        });
+
+        return res.status(200).json({ user });
 
     } catch (error: any) {
         if (error instanceof z.ZodError) {
@@ -28,9 +35,16 @@ export const loginController = async (req: Request, res: Response) => {
     try {
         const validatedData = loginSchema.parse(req.body);
 
-        const result = await login(validatedData);
+        const { user, token } = await login(validatedData);
 
-        res.status(200).json(result);
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+        });
+
+        return res.status(200).json({ user });
 
     } catch (error: any) {
         if (error instanceof z.ZodError) {

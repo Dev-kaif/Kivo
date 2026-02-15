@@ -6,14 +6,21 @@ import boardRoutes from './routes/board.routes';
 import listRoutes from './routes/list.routes';
 import taskRoutes from './routes/task.routes';
 import { apiLimiter } from './middleware/rateLimit.middleware';
+import cookieParser from "cookie-parser";
+
 
 const app = express();
 
 app.use(helmet());
+
 app.use(cors({
-    origin: "*"
+    origin: "*",
+    credentials: true,
 }));
+
 app.use(express.json());
+
+app.use(cookieParser());
 
 app.use('/api', apiLimiter);
 
