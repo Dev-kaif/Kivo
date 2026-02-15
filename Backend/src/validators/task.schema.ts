@@ -6,6 +6,7 @@ export const createTaskBodySchema = z.object({
     description: z.string().optional(),
     priority: z.enum(["LOW", "MEDIUM", "HIGH", "URGENT"]).optional(),
     dueDate: z.coerce.date().optional(),
+    assigneeIds: z.array(z.string().uuid()).optional(),
 });
 
 export const taskIdParamSchema = z.object({
@@ -24,4 +25,5 @@ export const updateTaskBodySchema = z.object({
     description: z.string().optional(),
     priority: z.enum(["LOW", "MEDIUM", "HIGH", "URGENT"]).optional(),
     dueDate: z.coerce.date().optional(),
+    assigneeIds: z.array(z.string().uuid()).optional(),
 });
