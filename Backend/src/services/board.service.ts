@@ -2,6 +2,8 @@ import { z } from 'zod';
 import { createBoardSchema, updateBoardSchema } from '../validators/board.schema';
 import db from '../lib/db';
 import { AppError } from "../utils/appError";
+import { logActivity } from "../utils/logActivity";
+import { ActivityAction } from "../../generated/prisma/enums";
 
 
 type CreateBoardInput = z.infer<typeof createBoardSchema>;
@@ -34,6 +36,13 @@ export const createBoard = async (
                 title: board.title,
             },
         },
+    });
+
+    await logActivity({
+        action: ActivityAction.BOARD_CREATED,
+        userId,
+        boardId: board.id,
+        details: { title: board.title },
     });
 
     return board;
@@ -161,10 +170,30 @@ export const updateBoard = async (userId: string, boardId: string, input: Update
         throw new AppError("Permission denied", 403);
     }
 
-    return await db.board.update({
+    const existingBoard = await db.board.findUnique({
+        where: { id: boardId },
+    });
+
+    if (!existingBoard) {
+        throw new AppError("Board not found", 404);
+    }
+
+    const updated = await db.board.update({
         where: { id: boardId },
         data: input,
     });
+
+    await logActivity({
+        action: ActivityAction.BOARD_UPDATED,
+        userId,
+        boardId,
+        details: {
+            oldTitle: existingBoard.title,
+            newTitle: input.title,
+        },
+    });
+
+    return updated;
 };
 
 export const deleteBoard = async (userId: string, boardId: string) => {
@@ -187,9 +216,18 @@ export const deleteBoard = async (userId: string, boardId: string) => {
         );
     }
 
-    return await db.board.delete({
+    const deleted = await db.board.delete({
         where: {
             id: boardId
         },
     });
+
+    await logActivity({
+        action: ActivityAction.BOARD_DELETED,
+        userId,
+        boardId,
+        details: { title: board.title },
+    });
+
+    return deleted
 };
