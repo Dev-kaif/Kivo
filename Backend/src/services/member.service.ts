@@ -4,6 +4,7 @@ import db from "../lib/db";
 import { logActivity } from "../utils/logActivity";
 import { ActivityAction } from "../../generated/prisma/enums";
 import { getIO } from "../websocket/socket";
+import { FRONTEND_URL } from "../config/env";
 
 
 export const generateInviteLink = async (
@@ -43,7 +44,7 @@ export const generateInviteLink = async (
 
     if (existingInvite) {
         return {
-            inviteUrl: `${process.env.FRONTEND_URL}/join/${existingInvite.token}`,
+            inviteUrl: `${FRONTEND_URL}/join/${existingInvite.token}`,
             expiresAt: existingInvite.expiresAt,
         };
     }
@@ -64,7 +65,7 @@ export const generateInviteLink = async (
     });
 
     return {
-        inviteUrl: `${process.env.FRONTEND_URL}/join/${invite.token}`,
+        inviteUrl: `${FRONTEND_URL}/join/${invite.token}`,
         expiresAt: invite.expiresAt,
     };
 };

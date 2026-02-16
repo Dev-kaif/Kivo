@@ -11,6 +11,7 @@ import activtyRoutes from './routes/activity.routes';
 
 import { apiLimiter } from './middleware/rateLimit.middleware';
 import cookieParser from "cookie-parser";
+import { FRONTEND_URL } from './config/env';
 
 
 const app = express();
@@ -18,8 +19,7 @@ const app = express();
 app.use(helmet());
 
 app.use(cors({
-    // origin: "*",
-    origin: "http://localhost:3000",
+    origin: `${FRONTEND_URL}`,
     credentials: true,
 }));
 
