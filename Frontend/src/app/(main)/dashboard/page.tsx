@@ -9,12 +9,15 @@ import { DashboardContainer, DashboardError, DashboardLoading } from "@/componen
 import { prefetchDashboard } from "@/components/Dashboard/server/prefetchDashboard";
 import { dashboardParamLoader } from "@/components/Dashboard/server/paramsLoader";
 import { DashboardContent } from "@/components/Dashboard/DashboardContent";
+import { requireAuth } from "@/lib/requireAuth";
 
 type Props = {
     searchParams: Promise<SearchParams>;
 };
 
 async function Page({ searchParams }: Props) {
+
+    await requireAuth();
 
     const params = await dashboardParamLoader(searchParams);
 

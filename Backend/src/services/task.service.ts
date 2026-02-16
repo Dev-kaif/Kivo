@@ -151,6 +151,18 @@ export const moveTask = async (
                     boardId: true
                 }
             },
+            assignees: {
+                select: {
+                    id: true,
+                    name: true,
+                    email: true
+                }
+            },
+            _count: {
+                select: {
+                    activities: true
+                }
+            },
         },
     });
 
@@ -213,9 +225,6 @@ export const deleteTask = async (
         throw new AppError("Task not found or access denied", 404);
     }
 
-    await db.task.delete({
-        where: { id: taskId }
-    });
 
     await logActivity({
         action: ActivityAction.TASK_DELETED,
@@ -225,6 +234,10 @@ export const deleteTask = async (
         details: {
             title: task.title
         },
+    });
+
+    await db.task.delete({
+        where: { id: taskId }
     });
 
     getIO().to(task.list.boardId).emit("task:deleted", { taskId });

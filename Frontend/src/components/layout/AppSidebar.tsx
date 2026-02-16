@@ -11,20 +11,30 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar'
 import Link from 'next/link'
-import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import {
     LayoutDashboard,
     KanbanSquare,
     Users,
     Settings,
-    LogOut
+    ChevronUpIcon,
+    LogOutIcon,
 } from 'lucide-react'
-
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useGetInfo } from '../Settings/hooks/useSuspenseMe';
+import { useLogout } from '@/hooks/useLogout';
 
 function AppSidebar() {
-    const router = useRouter();
     const pathName = usePathname();
+
+    const { data } = useGetInfo();
+    const { logout, isLoggingOut } = useLogout();
 
     const menuItems = [
         {
@@ -53,7 +63,6 @@ function AppSidebar() {
             ]
         }
     ];
-
 
 
     return (
@@ -91,7 +100,69 @@ function AppSidebar() {
                     </SidebarGroup>
                 ))}
             </SidebarContent>
+            <SidebarFooter>
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <div className="flex cursor-pointer items-center justify-between gap-3 rounded-xl border bg-card px-4 py-3 shadow-sm hover:bg-accent transition">
+                                    <div className="flex items-center gap-3 min-w-0">
+                                        <div className="h-9 w-9 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden">
+                                            <span className="text-sm font-semibold text-primary">
+                                                {data?.name.slice(0, 2).toUpperCase()}
+                                            </span>
+                                        </div>
 
+                                        <div className="min-w-0">
+                                            <div className="font-semibold text-sm capitalize truncate">
+                                                {data?.name}
+                                            </div>
+                                            <div className="text-sm text-muted-foreground truncate max-w-40">
+                                                {data?.email}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <ChevronUpIcon className="h-4 w-4 text-muted-foreground" />
+                                </div>
+                            </DropdownMenuTrigger>
+
+                            <DropdownMenuContent
+                                side="top"
+                                align="start"
+                                className="w-60 rounded-xl p-0 shadow-lg"
+                            >
+                                <div className="flex items-center gap-3 px-4 py-3">
+                                    <div className="h-9 w-9 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden">
+                                        <span className="text-sm font-semibold text-primary">
+                                            {data?.name?.slice(0, 2).toUpperCase()}
+                                        </span>
+                                    </div>
+
+                                    <div className="min-w-0">
+                                        <div className="font-semibold text-sm capitalize truncate">
+                                            {data?.name}
+                                        </div>
+                                        <div className="text-sm text-muted-foreground truncate">
+                                            {data?.email}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <DropdownMenuSeparator />
+
+                                <DropdownMenuItem
+                                    className="gap-2 px-4 py-3 cursor-pointer"
+                                    onClick={() => logout()}
+                                    disabled={isLoggingOut}
+                                >
+                                    <LogOutIcon className="h-4 w-4" />
+                                    Sign Out
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </SidebarMenuItem>
+                </SidebarMenu>
+            </SidebarFooter>
         </Sidebar>
     )
 }

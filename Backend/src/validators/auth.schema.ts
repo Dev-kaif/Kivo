@@ -19,3 +19,7 @@ export const resetPasswordSchema = z.object({
 export const deleteAccountSchema = z.object({
     password: z.string().min(6),
 });
+
+export const updateUserSchema = z.object({
+    newName: z.string().min(1),
+});

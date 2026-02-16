@@ -1,22 +1,23 @@
 "use client";
 
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/api";
 import { toast } from "sonner";
 
 export function useBoardMembers(boardId: string) {
+    const queryClient = useQueryClient();
 
     const addMemberMutation = useMutation({
         mutationKey: ["board", boardId, "add-member"],
         mutationFn: async (input: { email: string }) => {
-            const { data } = await api.post(
-                `/members/${boardId}`,
-                input
-            );
+            const { data } = await api.post(`/members/${boardId}`, input);
             return data;
         },
         onSuccess: () => {
             toast.success("Member added successfully");
+            queryClient.invalidateQueries({
+                queryKey: ["board", boardId, "members"],
+            });
         },
         onError: (err: any) => {
             toast.error(
@@ -36,7 +37,10 @@ export function useBoardMembers(boardId: string) {
             return data;
         },
         onSuccess: () => {
-            toast.success("Member removed");
+            toast.success("Member removed successfully");
+            queryClient.invalidateQueries({
+                queryKey: ["board", boardId, "members"],
+            });
         },
         onError: (err: any) => {
             toast.error(
@@ -49,13 +53,11 @@ export function useBoardMembers(boardId: string) {
     const generateInviteMutation = useMutation({
         mutationKey: ["board", boardId, "invite"],
         mutationFn: async () => {
-            const { data } = await api.post(
-                `/members/${boardId}/invite`
-            );
+            const { data } = await api.post(`/members/${boardId}/invite`);
             return data;
         },
         onSuccess: () => {
-            toast.success("Invite link generated");
+            toast.success("Invite link generated successfully");
         },
         onError: (err: any) => {
             toast.error(
@@ -76,19 +78,39 @@ export function useBoardMembers(boardId: string) {
     };
 }
 
+
 export function useGetBoardName(boardId: string) {
     const getBoardName = useQuery({
         queryKey: ["name", boardId],
         queryFn: async () => {
-            const { data } = await api.get(
-                `/boards/name/${boardId}`
-            );
+            const { data } = await api.get(`/boards/name/${boardId}`);
             return data;
-        }
-    })
+        },
+        enabled: !!boardId,
+    });
 
     return {
-        BoardName: getBoardName.data,
-        isGettingName: getBoardName.isLoading
-    }
+        boardName: getBoardName.data,
+        isGettingName: getBoardName.isLoading,
+        isError: getBoardName.isError,
+    };
+}
+
+
+export function useGetBoardMembers(boardId: string) {
+    const getBoardMembers = useQuery({
+        queryKey: ["board", boardId, "members"],
+        queryFn: async () => {
+            const { data } = await api.get(`/boards/members/${boardId}`);
+            return data;
+        },
+        enabled: !!boardId,
+    });
+
+    return {
+        members: getBoardMembers.data,
+        isGettingMembers: getBoardMembers.isLoading,
+        isError: getBoardMembers.isError,
+        refetchMembers: getBoardMembers.refetch,
+    };
 }

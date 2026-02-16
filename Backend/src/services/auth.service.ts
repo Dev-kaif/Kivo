@@ -131,3 +131,37 @@ export const deleteAccount = async (
 
     return { message: "Account deleted successfully" };
 };
+
+export const userInfo = async (userId: string,) => {
+    return await db.user.findFirstOrThrow({
+        where: {
+            id: userId
+        },
+        select: {
+            name: true,
+            email: true,
+            id: true
+        }
+    })
+}
+
+export const renameUser = async (userId: string, name: string) => {
+    const user = await db.user.findFirstOrThrow({
+        where: {
+            id: userId
+        }
+    })
+
+    if (!user) {
+        throw new AppError("User not found", 404);
+    }
+
+    return await db.user.update({
+        where: {
+            id: userId,
+        },
+        data: {
+            name: name
+        }
+    })
+}

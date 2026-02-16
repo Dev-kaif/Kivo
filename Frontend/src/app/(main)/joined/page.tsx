@@ -7,12 +7,14 @@ import { JoinedBoardsContainer, JoinedBoardsError, JoinedBoardsLoading } from "@
 import { joinedBoardsParamLoader } from "@/components/JoinedBoards/server/paramLoader";
 import { prefetchJoinedBoards } from "@/components/JoinedBoards/server/prefetch";
 import { JoinedBoardsList } from "@/components/JoinedBoards/page/BoardsList";
+import { requireAuth } from "@/lib/requireAuth";
 
 type Props = {
     searchParams: Promise<SearchParams>;
 };
 
 export default async function page({ searchParams }: Props) {
+    await requireAuth();
 
     const params = await joinedBoardsParamLoader(searchParams);
 

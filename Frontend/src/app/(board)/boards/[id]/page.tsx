@@ -1,14 +1,17 @@
 import { getServerApi } from "@/lib/server-api";
 import { KanbanBoard } from "@/components/board/KanbanBoard";
+import { requireAuth } from "@/lib/requireAuth";
 
 export default async function BoardPage({
     params,
 }: {
     params: Promise<{ id: string }>;
 }) {
+    await requireAuth();
     const { id } = await params;
 
     const api = await getServerApi();
+
 
     const { data: board } = await api.get(`/boards/${id}`);
 

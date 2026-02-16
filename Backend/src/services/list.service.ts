@@ -89,10 +89,6 @@ export const deleteList = async (
         throw new AppError("Only admins can delete lists", 403);
     }
 
-    await db.list.delete({
-        where: { id: listId },
-    });
-
     await logActivity({
         action: ActivityAction.LIST_DELETED,
         userId,
@@ -100,6 +96,10 @@ export const deleteList = async (
         details: {
             title: list.title,
         },
+    });
+
+    await db.list.delete({
+        where: { id: listId },
     });
 
     getIO()

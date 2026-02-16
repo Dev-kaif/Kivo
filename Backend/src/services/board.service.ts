@@ -312,3 +312,42 @@ export const getBoardNameById = async (userId: string, boardId: string) => {
 
     return board.title;
 };
+
+export const getBoardMembers = async (
+    userId: string,
+    boardId: string
+) => {
+
+    const currentUserMembership = await db.boardMember.findUnique({
+        where: {
+            boardId_userId: {
+                boardId,
+                userId,
+            },
+        },
+    });
+
+    if (!currentUserMembership) {
+        throw new AppError("Access denied", 403);
+    }
+
+    const members = await db.boardMember.findMany({
+        where: { boardId },
+        select: {
+            role: true,
+            joinedAt: true,
+            user: {
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                },
+            },
+        },
+        orderBy: {
+            joinedAt: "asc",
+        },
+    });
+
+    return members;
+};

@@ -12,11 +12,12 @@ import {
 import { ShareButton } from "./share/ShareButton";
 import { useGetBoardName } from "../hooks/useBoardMembers";
 import { ActivityButton } from "./activity/ActivityButton";
+import { MembersButton } from "./members/MembersButton";
 
 export default function BoardHeader() {
     const params = useParams();
     const boardId = params.id as string;
-    const { BoardName, isGettingName } = useGetBoardName(boardId)
+    const { boardName, isGettingName } = useGetBoardName(boardId)
 
     return (
         <header className="flex sticky top-0 z-50 px-4 border-b h-14 gap-2 items-center bg-sidebar">
@@ -31,7 +32,7 @@ export default function BoardHeader() {
                         <BreadcrumbItem>
                             <BreadcrumbPage>
                                 {isGettingName ?
-                                    "Loding..." : BoardName
+                                    "Loding..." : boardName
                                 }
                             </BreadcrumbPage>
                         </BreadcrumbItem>
@@ -42,6 +43,7 @@ export default function BoardHeader() {
             <div className="ml-auto flex items-center gap-2">
                 <ShareButton boardId={boardId} />
                 <ActivityButton boardId={boardId} />
+                <MembersButton boardId={boardId} />
             </div>
         </header>
     );

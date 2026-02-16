@@ -211,3 +211,34 @@ export const getBoardName = async (
         });
     }
 };
+
+export const getBoardMembers = async (
+    req: AuthRequest<{ id: string }>,
+    res: Response
+) => {
+    try {
+        const { id } = idParamSchema.parse(req.params);
+
+        const members = await BoardService.getBoardMembers(
+            req.user!.userId,
+            id
+        );
+
+        return res.json(members);
+
+    } catch (error: any) {
+        if (error instanceof z.ZodError) {
+            return res.status(400).json({ error: error.message });
+        }
+
+        if (error instanceof AppError) {
+            return res.status(error.statusCode).json({
+                error: error.message,
+            });
+        }
+
+        return res.status(500).json({
+            error: "Internal server error",
+        });
+    }
+};
