@@ -1,5 +1,4 @@
 'use client';
-
 import { useEffect, useRef, useState } from 'react';
 import {
     DndContext,
@@ -54,24 +53,20 @@ export function KanbanBoard({
         addList,
         addTask,
     } = useBoardStore();
-
     const {
         createList,
         moveTask: moveTaskApi,
         isCreatingList,
     } = useBoardMutations(boardId);
-
     const [isMounted, setIsMounted] = useState(false);
     const [isAddingList, setIsAddingList] = useState(false);
     const [newListTitle, setNewListTitle] = useState('');
-
     const dragState = useRef<{
         activeId: string;
         fromListId: string;
         toListId: string;
         toIndex: number;
     } | null>(null);
-
     const { socket } = useSocketStore();
 
     useEffect(() => {
@@ -85,16 +80,52 @@ export function KanbanBoard({
 
         socket.emit('joinBoard', boardId);
 
-        socket.on('task:moved', updateTask);
-        socket.on('task:created', addTask);
-        socket.on('list:created', addList);
+        const handleTaskUpdated = (task: Task) => {
+            console.log('Task updated received:', task);
+            updateTask(task); // Update the task with new data
+        };
+
+        const handleTaskMoved = (task: Task) => {
+            console.log('Task moved received:', task);
+            updateTask(task);
+        };
+
+        // Handler that always replaces/adds task data
+        const handleTaskCreated = (task: Task) => {
+            console.log('Task created received:', task);
+            addTask(task); // Always add/replace, handling duplicates internally
+        };
+
+        // Handler for task deletion
+        const handleTaskDeleted = (data: { taskId: string }) => {
+            console.log('Task deleted received:', data.taskId);
+            // Remove the task from the store
+            const updatedLists = lists.map(list => ({
+                ...list,
+                tasks: list.tasks.filter(task => task.id !== data.taskId)
+            }));
+            setLists(updatedLists);
+        };
+
+        const handleListCreated = (list: List) => {
+            console.log('List created received:', list);
+            addList(list);
+        };
+
+        socket.on('task:updated', handleTaskUpdated);
+        socket.on('task:moved', handleTaskMoved);
+        socket.on('task:created', handleTaskCreated);
+        socket.on('task:deleted', handleTaskDeleted);
+        socket.on('list:created', handleListCreated);
 
         return () => {
-            socket.off('task:moved', updateTask);
-            socket.off('task:created', addTask);
-            socket.off('list:created', addList);
+            socket.off('task:updated', handleTaskUpdated);
+            socket.off('task:moved', handleTaskMoved);
+            socket.off('task:created', handleTaskCreated);
+            socket.off('task:deleted', handleTaskDeleted);
+            socket.off('list:created', handleListCreated);
         };
-    }, [socket, boardId, updateTask, addTask, addList]);
+    }, [socket, boardId, updateTask, addTask, addList, lists, setLists]);
 
 
     const sensors = useSensors(
@@ -106,7 +137,6 @@ export function KanbanBoard({
     // List Creation
     const handleAddListSubmit = async () => {
         if (!newListTitle.trim()) return;
-
         try {
             await createList(newListTitle);
             setNewListTitle('');
@@ -116,19 +146,14 @@ export function KanbanBoard({
         }
     };
 
-
     const onDragStart = (event: DragStartEvent) => {
         if (event.active.data.current?.type !== 'Task') return;
-
         const task = event.active.data.current.task as Task;
         setActiveTask(task);
-
         const fromList = lists.find((l) =>
             l.tasks.some((t) => t.id === task.id)
         );
-
         if (!fromList) return;
-
         dragState.current = {
             activeId: task.id,
             fromListId: fromList.id,
@@ -137,31 +162,23 @@ export function KanbanBoard({
         };
     };
 
-
     const onDragOver = (event: DragOverEvent) => {
         if (!dragState.current || !event.over) return;
-
         const overId = event.over.id as string;
-
         const overList = lists.find(
             (l) =>
                 l.id === overId ||
                 l.tasks.some((t) => t.id === overId)
         );
-
         if (!overList) return;
-
         const tasksWithoutActive = overList.tasks.filter(
             (t) => t.id !== dragState.current!.activeId
         );
-
         const overIndex = tasksWithoutActive.findIndex(
             (t) => t.id === overId
         );
-
         const insertIndex =
             overIndex >= 0 ? overIndex : tasksWithoutActive.length;
-
         dragState.current = {
             ...dragState.current,
             toListId: overList.id,
@@ -169,34 +186,26 @@ export function KanbanBoard({
         };
     };
 
-
     const onDragEnd = async () => {
         const current = dragState.current;
         setActiveTask(null);
         dragState.current = null;
-
         if (!current) return;
-
         const { activeId, fromListId, toListId, toIndex } =
             current;
-
         moveTask(activeId, fromListId, toListId, toIndex);
-
         const updatedLists = useBoardStore.getState().lists;
         const destList = updatedLists.find(
             (l) => l.id === toListId
         );
         if (!destList) return;
-
         const finalIndex = destList.tasks.findIndex(
             (t) => t.id === activeId
         );
-
         const newPosition = computePosition(
             destList.tasks,
             finalIndex
         );
-
         try {
             await moveTaskApi({
                 taskId: activeId,
@@ -207,7 +216,6 @@ export function KanbanBoard({
             console.error('Move failed, reverting');
         }
     };
-
 
     return (
         <DndContext
@@ -227,7 +235,6 @@ export function KanbanBoard({
                         />
                     ))}
                 </SortableContext>
-
                 {/* Add List Section */}
                 <div className="min-w-80 w-80">
                     {!isAddingList ? (
@@ -251,7 +258,6 @@ export function KanbanBoard({
                                 }
                                 className="h-10"
                             />
-
                             <div className="flex gap-2">
                                 <Button
                                     disabled={isCreatingList || !newListTitle.trim()}
@@ -260,7 +266,6 @@ export function KanbanBoard({
                                 >
                                     {isCreatingList ? 'Adding...' : 'Add List'}
                                 </Button>
-
                                 <Button
                                     variant="outline"
                                     disabled={isCreatingList}
@@ -275,10 +280,7 @@ export function KanbanBoard({
                         </div>
                     )}
                 </div>
-
-
             </div>
-
             {isMounted &&
                 createPortal(
                     <DragOverlay>

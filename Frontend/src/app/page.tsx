@@ -1,7 +1,7 @@
-import Image from "next/image";
+import LandingPage from "@/components/LandingPage/LandingPage";
 
-export default function Home() {
+export default function Page() {
   return (
-    <div>Home</div>
+    <LandingPage />
   );
 }

@@ -32,7 +32,9 @@ export function useBoardMembers(boardId: string) {
         mutationFn: async (userId: string) => {
             const { data } = await api.delete(
                 `/members/${boardId}`,
-                { params: { userId } }
+                {
+                    data: { userId },
+                }
             );
             return data;
         },

@@ -36,7 +36,7 @@ export function useSettingsMutations() {
         mutationFn: async (input: {
             password: string;
         }) => {
-            const { data } = await api.post(
+            const { data } = await api.put(
                 "/auth/delete-account",
                 input
             );
@@ -59,7 +59,7 @@ export function useSettingsMutations() {
         mutationFn: async (input: {
             newName: string;
         }) => {
-            const { data } = await api.post(
+            const { data } = await api.put(
                 "/auth/rename",
                 input
             );
