@@ -11,7 +11,7 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar'
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import {
     LayoutDashboard,
     KanbanSquare,
@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useGetInfo } from '../Settings/hooks/useSuspenseMe';
 import { useLogout } from '@/hooks/useLogout';
+import Image from 'next/image';
 
 function AppSidebar() {
     const pathName = usePathname();
@@ -69,10 +70,9 @@ function AppSidebar() {
         <Sidebar>
             <SidebarHeader>
                 <SidebarMenuItem>
-                    {/* <Link className='flex items-center w-full mt-1 mb-2' href={"/workflows"} prefetch>
-                        <Image alt='OpenFlowX' className='w-fit h-10' width={100} height={100} src={theme === "dark" ? "/main/logo-dark.png" : "/main/logo.png"} />
-                    </Link> */}
-                    <span>Niro</span>
+                    <Link className='flex items-center w-full mt-1 mb-2' href={"/dashboard"} prefetch>
+                        <Image alt='Niro' className='w-fit h-11' width={100} height={100} src={"/main/logo.png"} />
+                    </Link>
                 </SidebarMenuItem>
             </SidebarHeader>
             <SidebarContent>

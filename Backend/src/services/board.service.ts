@@ -207,17 +207,17 @@ export const deleteBoard = async (userId: string, boardId: string) => {
         );
     }
 
-    const deleted = await db.board.delete({
-        where: {
-            id: boardId
-        },
-    });
-
     await logActivity({
         action: ActivityAction.BOARD_DELETED,
         userId,
         boardId,
         details: { title: board.title },
+    });
+
+    const deleted = await db.board.delete({
+        where: {
+            id: boardId
+        },
     });
 
     return deleted

@@ -41,9 +41,9 @@ export default function BoardHeader() {
             </div>
 
             <div className="ml-auto flex items-center gap-2">
-                <ShareButton boardId={boardId} />
                 <ActivityButton boardId={boardId} />
                 <MembersButton boardId={boardId} />
+                <ShareButton boardId={boardId} />
             </div>
         </header>
     );
