@@ -1,10 +1,11 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { useBoardStore } from '@/components/store/useBoardStore';
 import { List, Task } from '@/lib/types';
 
 export function useBoardMutations(boardId: string) {
     const { addList, addTask, updateTask, setLists, lists } = useBoardStore();
+    const queryClient = useQueryClient()
 
     const createListMutation = useMutation({
         mutationFn: async (title: string) => {
@@ -135,6 +136,9 @@ export function useBoardMutations(boardId: string) {
         },
         onSuccess: (updatedTask) => {
             updateTask(updatedTask);
+            queryClient.invalidateQueries({
+                queryKey: ["board", boardId, "activity"],
+            })
         },
         onError: (error) => {
             console.error("Move failed", error);

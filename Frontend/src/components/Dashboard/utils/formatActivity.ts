@@ -7,43 +7,58 @@ export function formatActivityMessage(activity: Activity) {
     switch (activity.action) {
 
         case "BOARD_CREATED":
-            return `created board "${boardTitle}"`;
+            return `created board "${details?.title ?? boardTitle}"`;
 
         case "BOARD_UPDATED":
-            return `updated board "${boardTitle}"`;
+            return `renamed board from "${details?.from}" to "${details?.to}"`;
 
         case "BOARD_DELETED":
-            return `deleted board "${boardTitle}"`;
-
-
-        case "TASK_CREATED":
-            return `created task "${details?.title ?? "Untitled"}" in "${boardTitle}"`;
-
-        case "TASK_UPDATED":
-            return `updated task "${details?.title ?? "a task"}" in "${boardTitle}"`;
-
-        case "TASK_MOVED":
-            return `moved task "${details?.title ?? "a task"}" in "${boardTitle}"`;
-
-        case "TASK_DELETED":
-            return `deleted task "${details?.title ?? "a task"}" from "${boardTitle}"`;
+            return `deleted board "${details?.title ?? boardTitle}"`;
 
 
         case "LIST_CREATED":
-            return `created list "${details?.title ?? "Untitled"}" in "${boardTitle}"`;
+            return `created list "${details?.title}" in "${boardTitle}"`;
 
         case "LIST_UPDATED":
-            return `updated list "${details?.title ?? "a list"}" in "${boardTitle}"`;
+            return `renamed list from "${details?.from}" to "${details?.to}"`;
 
         case "LIST_DELETED":
-            return `deleted list "${details?.title ?? "a list"}" from "${boardTitle}"`;
+            return `deleted list "${details?.title}" from "${boardTitle}"`;
+
+
+        case "TASK_CREATED":
+            if (details?.assignees?.length) {
+                return `created task "${details.title}" assigned to ${details.assignees.join(", ")}`;
+            }
+            return `created task "${details?.title ?? "Untitled"}"`;
+
+        case "TASK_UPDATED":
+            if (details?.changes?.length) {
+                return `updated ${details.changes.join(", ")} on task "${details.title}"`;
+            }
+            return `updated task "${details?.title ?? "a task"}"`;
+
+        case "TASK_MOVED":
+            return `moved task "${details?.title}" from "${details?.fromList}" to "${details?.toList}"`;
+
+        case "TASK_DELETED":
+            return `deleted task "${details?.title}"`;
 
 
         case "MEMBER_ADDED":
-            return `added ${details?.memberName ?? "a member"} to "${boardTitle}"`;
+            if (details?.method === "invite") {
+                return `joined via invite (${details?.name})`;
+            }
+            return `added ${details?.name ?? details?.email ?? "a member"} to "${boardTitle}"`;
 
         case "MEMBER_REMOVED":
-            return `removed ${details?.memberName ?? "a member"} from "${boardTitle}"`;
+            return `removed ${details?.name ?? details?.email ?? "a member"} from "${boardTitle}"`;
+
+
+        default: {
+            const action = String(activity.action);
+            return action.replaceAll("_", " ").toLowerCase();
+        }
 
     }
 }
