@@ -23,6 +23,19 @@ export const createList = async (
         throw new AppError("Board not found or access denied", 403);
     }
 
+    const member = await db.boardMember.findUnique({
+        where: {
+            boardId_userId: {
+                boardId: boardId,
+                userId,
+            },
+        },
+    });
+
+    if (!member || member.role !== "ADMIN") {
+        throw new AppError("Only admins can create lists", 403);
+    }
+
     const lastList = await db.list.findFirst({
         where: { boardId },
         orderBy: { position: "desc" },

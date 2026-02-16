@@ -13,7 +13,7 @@ router.post('/signup', signUpController);
 router.post('/login', loginController);
 
 router.post("/reset-password", authenticate, resetPasswordController);
-router.delete("/delete-account", authenticate, deleteAccountController);
+router.put("/delete-account", authenticate, deleteAccountController);
 
 router.put("/rename", authenticate, updateUserController);
 router.post("/logout", authenticate, logoutController);

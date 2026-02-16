@@ -53,7 +53,7 @@ export const removeMember = async (
 ) => {
     try {
         const { boardId } = boardIdParamSchema.parse(req.params);
-        const { userId } = removeMemberParamSchema.parse(req.params);
+        const { userId } = removeMemberParamSchema.parse(req.body);
 
         await MemberService.removeMember(
             req.user!.userId,
