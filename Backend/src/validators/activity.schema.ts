@@ -5,6 +5,6 @@ export const boardIdParamSchema = z.object({
 });
 
 export const activityQuerySchema = z.object({
-    page: z.coerce.number().int().min(1).default(1),
+    cursor: z.string().uuid().optional(),
     pageSize: z.coerce.number().int().min(1).max(50).default(10),
 });

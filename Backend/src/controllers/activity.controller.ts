@@ -31,12 +31,12 @@ export const getBoardActivity = async (
 ) => {
     try {
         const { boardId } = boardIdParamSchema.parse(req.params);
-        const { page, pageSize } = activityQuerySchema.parse(req.query);
+        const { cursor, pageSize } = activityQuerySchema.parse(req.query);
 
         const result = await ActivityService.getBoardActivity(
             req.user!.userId,
             boardId,
-            page,
+            cursor,
             pageSize
         );
 

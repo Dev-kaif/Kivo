@@ -2,30 +2,6 @@ import { ActivityAction } from "../../generated/prisma/enums";
 import db from "../lib/db";
 import { AppError } from "../utils/appError";
 
-export const logActivity = async ({
-    action,
-    userId,
-    boardId,
-    taskId,
-    details,
-}: {
-    action: ActivityAction;
-    userId: string;
-    boardId: string;
-    taskId?: string;
-    details?: any;
-}) => {
-    await db.activityLog.create({
-        data: {
-            action,
-            userId,
-            boardId,
-            taskId,
-            details,
-        },
-    });
-};
-
 export const getRecentActivity = async (
     userId: string,
     limit = 3
@@ -74,17 +50,14 @@ export const getRecentActivity = async (
 export const getBoardActivity = async (
     userId: string,
     boardId: string,
-    page = 1,
+    cursor?: string,
     pageSize = 10
 ) => {
 
     // Verify access
     const member = await db.boardMember.findUnique({
         where: {
-            boardId_userId: {
-                boardId,
-                userId,
-            }
+            boardId_userId: { boardId, userId }
         }
     });
 
@@ -92,39 +65,34 @@ export const getBoardActivity = async (
         throw new AppError("Access denied", 403);
     }
 
-    const skip = (page - 1) * pageSize;
-
-    const [items, totalCount] = await Promise.all([
-        db.activityLog.findMany({
-            where: { boardId },
-            include: {
-                user: {
-                    select: {
-                        id: true,
-                        name: true,
-                    }
-                },
-                task: {
-                    select: {
-                        id: true,
-                        title: true,
-                    }
-                }
+    const items = await db.activityLog.findMany({
+        where: { boardId },
+        include: {
+            user: {
+                select: { id: true, name: true }
             },
-            orderBy: { createdAt: "desc" },
-            skip,
-            take: pageSize,
+            task: {
+                select: { id: true, title: true }
+            }
+        },
+        orderBy: [
+            { createdAt: "desc" },
+            { id: "desc" }
+        ],
+        take: pageSize,
+        ...(cursor && {
+            skip: 1,
+            cursor: { id: cursor }
         }),
-        db.activityLog.count({
-            where: { boardId }
-        })
-    ]);
+    });
+
+    const nextCursor =
+        items.length === pageSize
+            ? items[items.length - 1].id
+            : null;
 
     return {
         items,
-        totalCount,
-        page,
-        pageSize,
-        totalPages: Math.ceil(totalCount / pageSize),
+        nextCursor,
     };
 };

@@ -179,8 +179,8 @@ export const updateBoard = async (userId: string, boardId: string, input: Update
         userId,
         boardId,
         details: {
-            oldTitle: existingBoard.title,
-            newTitle: input.title,
+            from: existingBoard.title,
+            to: input.title,
         },
     });
 
@@ -295,3 +295,20 @@ export const getPaginatedBoards = async (
     };
 };
 
+export const getBoardNameById = async (userId: string, boardId: string) => {
+
+    const board = await db.board.findUnique({
+        where: {
+            id: boardId
+        },
+        select: {
+            title: true
+        }
+    });
+
+    if (!board) {
+        throw new AppError("Board not found", 404);
+    }
+
+    return board.title;
+};

@@ -97,7 +97,9 @@ export const deleteList = async (
         action: ActivityAction.LIST_DELETED,
         userId,
         boardId: list.board.id,
-        details: { listId, title: list.title },
+        details: {
+            title: list.title,
+        },
     });
 
     getIO()
@@ -141,9 +143,8 @@ export const renameList = async (
         userId,
         boardId: list.board.id,
         details: {
-            listId,
-            oldTitle: list.title,
-            newTitle,
+            from: list.title,
+            to: newTitle,
         },
     });
 

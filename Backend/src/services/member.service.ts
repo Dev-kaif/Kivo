@@ -21,16 +21,40 @@ export const generateInviteLink = async (
     });
 
     if (!member || member.role !== "ADMIN") {
-        throw new AppError("Only admins can generate invite links", 403);
+        throw new AppError(
+            "Only admins can generate invite links",
+            403
+        );
     }
 
-    // Generate secure random token
+    const now = new Date();
+
+    const existingInvite = await db.boardInvite.findFirst({
+        where: {
+            boardId,
+            expiresAt: {
+                gt: now, // not expired
+            },
+        },
+        orderBy: {
+            createdAt: "desc",
+        },
+    });
+
+    if (existingInvite) {
+        return {
+            inviteUrl: `${process.env.FRONTEND_URL}/join/${existingInvite.token}`,
+            expiresAt: existingInvite.expiresAt,
+        };
+    }
+
+    // Create new invite
     const token = crypto.randomBytes(32).toString("hex");
 
     const expiresAt = new Date();
     expiresAt.setHours(expiresAt.getHours() + 24);
 
-    await db.boardInvite.create({
+    const invite = await db.boardInvite.create({
         data: {
             boardId,
             token,
@@ -40,8 +64,8 @@ export const generateInviteLink = async (
     });
 
     return {
-        inviteUrl: `${process.env.FRONTEND_URL}/join/${token}`,
-        expiresAt,
+        inviteUrl: `${process.env.FRONTEND_URL}/join/${invite.token}`,
+        expiresAt: invite.expiresAt,
     };
 };
 
@@ -99,7 +123,11 @@ export const joinBoardViaInvite = async (
         action: ActivityAction.MEMBER_ADDED,
         userId,
         boardId: invite.boardId,
-        details: { via: "invite_link" },
+        details: {
+            method: "invite link",
+            name: membership.user.name,
+            email: membership.user.email
+        },
     });
 
     getIO().to(invite.boardId).emit("member:added", membership);
@@ -204,8 +232,9 @@ export const addMemberByEmail = async (
         userId: adminId,
         boardId,
         details: {
-            addedUserEmail: email,
-            via: "manual"
+            method: "manual",
+            name: membership.user.name,
+            email: email,
         },
     });
 
@@ -278,7 +307,10 @@ export const removeMember = async (
         action: ActivityAction.MEMBER_REMOVED,
         userId: adminId,
         boardId,
-        details: { removedUserEmail: member.user.email },
+        details: {
+            name: member.user.name,
+            email: member.user.email,
+        },
     });
 
     getIO().to(boardId).emit("member:removed", {

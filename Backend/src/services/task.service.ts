@@ -82,7 +82,11 @@ export const createTask = async (
         userId,
         boardId: list.boardId,
         taskId: task.id,
-        details: { title: task.title, assigneeCount: validAssignees.length },
+        details: {
+            title: task.title,
+            assigneeCount: validAssignees.length,
+            assignees: task.assignees.map(a => a.name),
+        },
     });
 
     getIO().to(list.boardId).emit("task:created", task);
@@ -150,15 +154,26 @@ export const moveTask = async (
         },
     });
 
+    const fromList = await db.list.findUnique({
+        where: { id: task.listId },
+        select: { title: true },
+    });
+
+    const toList = await db.list.findUnique({
+        where: { id: newListId },
+        select: { title: true },
+    });
+
+
     await logActivity({
         action: ActivityAction.TASK_MOVED,
         userId,
         boardId: updatedTask.list.boardId,
         taskId: updatedTask.id,
         details: {
-            fromListId: task.listId,
-            toListId: newListId,
-            newPosition,
+            title: task.title,
+            fromList: fromList?.title,
+            toList: toList?.title,
         },
     });
 
@@ -207,7 +222,9 @@ export const deleteTask = async (
         userId,
         boardId: task.list.boardId,
         taskId,
-        details: { title: task.title },
+        details: {
+            title: task.title
+        },
     });
 
     getIO().to(task.list.boardId).emit("task:deleted", { taskId });
@@ -284,19 +301,34 @@ export const updateTask = async (
         }
     });
 
+    const changes: Record<string, any> = {};
+
+    if (updates.title && updates.title !== task.title) {
+        changes.title = {
+            from: task.title,
+            to: updates.title,
+        };
+    }
+
+    if (updates.priority && updates.priority !== task.priority) {
+        changes.priority = {
+            from: task.priority,
+            to: updates.priority,
+        };
+    }
+
+    if (updates.assigneeIds !== undefined) {
+        changes.assignees = updatedTask.assignees.map(a => a.name);
+    }
+
     await logActivity({
         action: ActivityAction.TASK_UPDATED,
         userId,
         boardId: task.list.boardId,
         taskId,
         details: {
-            old: {
-                title: task.title,
-                description: task.description,
-                priority: task.priority,
-                dueDate: task.dueDate,
-            },
-            updatedFields: Object.keys(updates)
+            title: task.title,
+            changes,
         },
     });
 
