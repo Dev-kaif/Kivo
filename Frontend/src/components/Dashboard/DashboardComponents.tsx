@@ -1,3 +1,4 @@
+"use client"
 
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
@@ -6,7 +7,24 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Activity } from "@/lib/types";
 import { formatActivityMessage } from "./utils/formatActivity";
 import Link from "next/link";
-import { formatDistanceToNow } from "date-fns";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useState } from "react";
+import {
+    CheckIcon,
+    MoreVerticalIcon,
+    PencilIcon,
+    TrashIcon,
+    XIcon,
+} from "lucide-react";
+import { useOwnedBoardMutations } from "../OwnedBoards/hooks/useOwnedBoardMutations";
+import { ConfirmDialog } from "../ui/confirmDailog";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 interface DashboardContainerProps {
     children: ReactNode;
@@ -52,62 +70,213 @@ export const RecentBoardsList = ({
 }: RecentBoardsListProps) => {
     const recentBoards = boards.slice(0, 3);
 
+    const { renameBoard, deleteBoard, isDeleting, isRenaming } = useOwnedBoardMutations();
+
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [selectedBoard, setSelectedBoard] = useState<Board | null>(null);
+
+    const [editingBoardId, setEditingBoardId] = useState<string | null>(null);
+    const [renameValue, setRenameValue] = useState("");
+
+    const startRename = (board: Board) => {
+        setEditingBoardId(board.id);
+        setRenameValue(board.title);
+    };
+
+    const cancelRename = () => {
+        setEditingBoardId(null);
+        setRenameValue("");
+    };
+
+    const confirmRename = async (boardId: string) => {
+        if (!renameValue.trim()) return;
+
+        await renameBoard({
+            boardId,
+            title: renameValue.trim(),
+        });
+
+        cancelRename();
+    };
+
+    const handleDeleteClick = (board: Board) => {
+        setSelectedBoard(board);
+        setDeleteDialogOpen(true);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!selectedBoard) return;
+
+        await deleteBoard(selectedBoard.id);
+        setDeleteDialogOpen(false);
+        setSelectedBoard(null);
+    };
+
     return (
-        <div className="space-y-4">
-            <h2 className="text-base font-semibold">
-                Recent Boards
-            </h2>
+        <>
+            <div className="space-y-4">
+                <h2 className="text-base font-semibold">
+                    Recent Boards
+                </h2>
 
-            {isLoading ? (
-                <div className="min-h-32 flex items-center justify-center">
-                    <LoadingView message="Loading boards" />
-                </div>
-            ) : recentBoards.length === 0 ? (
-                <EmptyView message="No recent boards found." />
-            ) : (
-                <div className="flex flex-col gap-3">
-                    {recentBoards.map((board) => (
-                        <Link
-                            key={board.id}
-                            href={`/boards/${board.id}`}
-                        >
-                            <Card
-                                className={cn(
-                                    "px-5 py-4 shadow-none transition-all duration-200",
-                                    "hover:shadow-sm hover:border-primary/30 hover:bg-muted/30",
-                                    "cursor-pointer rounded-xl"
-                                )}
-                            >
-                                <div className="flex items-center justify-between">
+                {isLoading ? (
+                    <div className="min-h-32 flex items-center justify-center">
+                        <LoadingView message="Loading boards" />
+                    </div>
+                ) : recentBoards.length === 0 ? (
+                    <EmptyView message="No recent boards found." />
+                ) : (
+                    <div className="flex flex-col gap-3">
+                        {recentBoards.map((board) => {
+                            const isEditing =
+                                editingBoardId === board.id;
 
-                                    {/* Left */}
-                                    <div className="flex items-center gap-4">
+                            return (
+                                <Link
+                                    key={board.id}
+                                    href={`/boards/${board.id}`}
+                                    onClick={(e) => {
+                                        if (isEditing) e.preventDefault();
+                                    }}
+                                >
+                                    <Card
+                                        className={cn(
+                                            "px-5 py-4 shadow-none transition-all duration-200",
+                                            "hover:shadow-sm hover:border-primary/30 hover:bg-muted/30",
+                                            "cursor-pointer rounded-xl"
+                                        )}
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-4 flex-1">
 
-                                        {/* Avatar */}
-                                        <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary">
-                                            {board.title.slice(0, 2).toUpperCase()}
+                                                <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary shrink-0">
+                                                    {board.title
+                                                        .slice(0, 2)
+                                                        .toUpperCase()}
+                                                </div>
+
+                                                <div className="flex flex-col flex-1">
+                                                    {isEditing ? (
+                                                        <div className="flex items-center gap-1">
+                                                            <Input
+                                                                value={renameValue}
+                                                                onChange={(e) =>
+                                                                    setRenameValue(
+                                                                        e.target.value
+                                                                    )
+                                                                }
+                                                                onKeyDown={(e) => {
+                                                                    if (e.key === "Enter")
+                                                                        confirmRename(board.id);
+                                                                    if (e.key === "Escape")
+                                                                        cancelRename();
+                                                                }}
+                                                                autoFocus
+                                                                className="h-8 text-sm w-54"
+                                                            />
+
+                                                            <Button
+                                                                size="icon"
+                                                                variant="ghost"
+                                                                disabled={isRenaming}
+                                                                onClick={(e) => {
+                                                                    e.preventDefault();
+                                                                    confirmRename(board.id);
+                                                                }}
+                                                            >
+                                                                <CheckIcon className="size-4 text-green-600" />
+                                                            </Button>
+
+                                                            <Button
+                                                                size="icon"
+                                                                variant="ghost"
+                                                                onClick={(e) => {
+                                                                    e.preventDefault();
+                                                                    cancelRename();
+                                                                }}
+                                                            >
+                                                                <XIcon className="size-4" />
+                                                            </Button>
+                                                        </div>
+                                                    ) : (
+                                                        <>
+                                                            <span className="text-sm font-medium">
+                                                                {board.title}
+                                                            </span>
+
+                                                            <span className="text-xs text-muted-foreground">
+                                                                Owner: {board.owner.name}
+                                                            </span>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            {/* Dropdown */}
+                                            {!isEditing && (
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <button
+                                                            onClick={(e) =>
+                                                                e.stopPropagation()
+                                                            }
+                                                            className="p-1 rounded-md hover:bg-muted"
+                                                        >
+                                                            <MoreVerticalIcon className="size-4" />
+                                                        </button>
+                                                    </DropdownMenuTrigger>
+
+                                                    <DropdownMenuContent
+                                                        align="end"
+                                                        onClick={(e) =>
+                                                            e.stopPropagation()
+                                                        }
+                                                    >
+                                                        <DropdownMenuItem
+                                                            onClick={() =>
+                                                                startRename(board)
+                                                            }
+                                                        >
+                                                            <PencilIcon className="size-4 mr-2" />
+                                                            Rename
+                                                        </DropdownMenuItem>
+
+                                                        <DropdownMenuItem
+                                                            onClick={() =>
+                                                                handleDeleteClick(board)
+                                                            }
+                                                            className="text-red-600 focus:text-red-600"
+                                                        >
+                                                            <TrashIcon className="size-4 mr-2" />
+                                                            Delete
+                                                        </DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            )}
                                         </div>
+                                    </Card>
+                                </Link>
+                            );
+                        })}
+                    </div>
+                )}
+            </div>
 
-                                        {/* Info */}
-                                        <div className="flex flex-col">
-                                            <span className="text-sm font-medium">
-                                                {board.title}
-                                            </span>
-
-                                            <span className="text-xs text-muted-foreground">
-                                                Owner: {board.owner.name}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </Card>
-                        </Link>
-                    ))}
-                </div>
-            )}
-        </div>
+            <ConfirmDialog
+                open={deleteDialogOpen}
+                onOpenChange={setDeleteDialogOpen}
+                title="Delete Board"
+                description={`Are you sure you want to delete "${selectedBoard?.title}"? This action cannot be undone.`}
+                confirmText="Delete"
+                destructive
+                loading={isDeleting}
+                onConfirm={handleConfirmDelete}
+            />
+        </>
     );
 };
+
+
 
 
 

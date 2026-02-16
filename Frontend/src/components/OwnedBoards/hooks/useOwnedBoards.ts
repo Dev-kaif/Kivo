@@ -1,8 +1,8 @@
 "use client";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { ownedBoardsClientQueries } from "../client/queries";
 import { useOwnedBoardsParams } from "./useBoardParams";
+import { ownedBoardsClientQueries } from "../client/queries";
 
 export function useSuspenseOwnedBoards() {
     const [params] = useOwnedBoardsParams();
@@ -15,3 +15,4 @@ export function useSuspenseOwnedBoards() {
         })
     );
 }
+

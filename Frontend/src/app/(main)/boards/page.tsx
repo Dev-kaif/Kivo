@@ -3,10 +3,10 @@ import { ErrorBoundary } from "react-error-boundary";
 import { Suspense } from "react";
 
 import type { SearchParams } from "nuqs/server";
-import { prefetchOwnedBoards } from "@/components/board/server/prefetch";
-import { ownedBoardsParamLoader } from "@/components/board/server/paramLoader";
-import { OwnedBoardsContainer, OwnedBoardsError, OwnedBoardsLoading } from "@/components/board/page/BoardPageComponents";
-import { OwnedBoardsList } from "@/components/board/page/BoardsList";
+import { prefetchOwnedBoards } from "@/components/OwnedBoards/server/prefetch";
+import { ownedBoardsParamLoader } from "@/components/OwnedBoards/server/paramLoader";
+import { OwnedBoardsContainer, OwnedBoardsError, OwnedBoardsLoading } from "@/components/OwnedBoards/page/BoardPageComponents";
+import { OwnedBoardsList } from "@/components/OwnedBoards/page/BoardsList";
 
 type Props = {
     searchParams: Promise<SearchParams>;

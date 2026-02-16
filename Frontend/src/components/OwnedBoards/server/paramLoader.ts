@@ -6,7 +6,7 @@ import {
     parseAsStringEnum,
 } from 'nuqs/server';
 
-export const boardParams = {
+export const ownedBoardsParam = {
     page: parseAsInteger
         .withDefault(PAGINATION.DEFAULT_PAGE)
         .withOptions({ clearOnDefault: true }),
@@ -24,4 +24,4 @@ export const boardParams = {
         .withOptions({ clearOnDefault: true }),
 };
 
-export const ownedBoardsParamLoader = createLoader(boardParams);
+export const ownedBoardsParamLoader = createLoader(ownedBoardsParam);
