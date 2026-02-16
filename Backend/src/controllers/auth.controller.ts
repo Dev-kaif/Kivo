@@ -1,14 +1,14 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
-import { signUp, login } from '../services/auth.service';
-import { signUpSchema, loginSchema } from '../validators/auth.schema';
+import { signUpSchema, loginSchema, resetPasswordSchema, deleteAccountSchema } from '../validators/auth.schema';
 import { AppError } from '../utils/appError';
+import * as AuthService from "../services/auth.service";
 
 export const signUpController = async (req: Request, res: Response) => {
     try {
         const validatedData = signUpSchema.parse(req.body);
 
-        const { user, token } = await signUp(validatedData);
+        const { user, token } = await AuthService.signUp(validatedData);
 
         res.cookie("token", token, {
             httpOnly: true,
@@ -21,21 +21,22 @@ export const signUpController = async (req: Request, res: Response) => {
 
     } catch (error: any) {
         if (error instanceof z.ZodError) {
-            res.status(400).json({ error: error.message });
-        } else if (error instanceof AppError) {
-            res.status(error.statusCode).json({ error: error.message });
-        } else {
-            res.status(500).json({ error: 'Internal Server Error' });
+            return res.status(400).json({ error: error.message });
         }
+
+        if (error instanceof AppError) {
+            return res.status(error.statusCode).json({ error: error.message });
+        }
+
+        return res.status(500).json({ error: "Internal Server Error" });
     }
 };
-
 
 export const loginController = async (req: Request, res: Response) => {
     try {
         const validatedData = loginSchema.parse(req.body);
 
-        const { user, token } = await login(validatedData);
+        const { user, token } = await AuthService.login(validatedData);
 
         res.cookie("token", token, {
             httpOnly: true,
@@ -48,11 +49,74 @@ export const loginController = async (req: Request, res: Response) => {
 
     } catch (error: any) {
         if (error instanceof z.ZodError) {
-            res.status(400).json({ error: error.message });
-        } else if (error instanceof AppError) {
-            res.status(error.statusCode).json({ error: error.message });
-        } else {
-            res.status(500).json({ error: 'Internal Server Error' });
+            return res.status(400).json({ error: error.message });
         }
+
+        if (error instanceof AppError) {
+            return res.status(error.statusCode).json({ error: error.message });
+        }
+
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+export const resetPasswordController = async (
+    req: Request,
+    res: Response
+) => {
+    try {
+        const userId = req.user!.userId;
+
+        const validatedData = resetPasswordSchema.parse(req.body);
+
+        const result = await AuthService.resetPassword(
+            userId,
+            validatedData.currentPassword,
+            validatedData.newPassword
+        );
+
+        return res.status(200).json(result);
+    } catch (error: any) {
+        if (error instanceof z.ZodError) {
+            return res.status(400).json({ error: error.message });
+        }
+
+        if (error instanceof AppError) {
+            return res.status(error.statusCode).json({ error: error.message });
+        }
+
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+export const deleteAccountController = async (
+    req: Request,
+    res: Response
+) => {
+    try {
+        const userId = req.user!.userId;
+
+        const validatedData = deleteAccountSchema.parse(req.body);
+
+        const result = await AuthService.deleteAccount(
+            userId,
+            validatedData.password
+        );
+
+        // Clear cookie after deletion
+        res.clearCookie("token");
+
+        return res.status(200).json(result);
+    } catch (error: any) {
+
+        if (error instanceof z.ZodError) {
+            return res.status(400).json({ error: error.message });
+        }
+
+        if (error instanceof AppError) {
+            return res.status(error.statusCode).json({ error: error.message });
+        }
+
+        return res.status(500).json({ error: "Internal Server Error" });
     }
 };

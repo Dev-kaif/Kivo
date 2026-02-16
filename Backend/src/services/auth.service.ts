@@ -72,3 +72,62 @@ export const login = async (input: LoginInput) => {
     return { user: userWithoutPassword, token };
 };
 
+
+export const resetPassword = async (
+    userId: string,
+    currentPassword: string,
+    newPassword: string
+) => {
+
+    const user = await db.user.findUnique({
+        where: { id: userId },
+    });
+
+    if (!user) {
+        throw new AppError("User not found", 404);
+    }
+
+    const isMatch = await bcrypt.compare(
+        currentPassword,
+        user.password
+    );
+
+    if (!isMatch) {
+        throw new AppError("Current password is incorrect", 400);
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await db.user.update({
+        where: { id: userId },
+        data: { password: hashedPassword },
+    });
+
+    return { message: "Password updated successfully" };
+};
+
+export const deleteAccount = async (
+    userId: string,
+    password: string
+) => {
+
+    const user = await db.user.findUnique({
+        where: { id: userId },
+    });
+
+    if (!user) {
+        throw new AppError("User not found", 404);
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+        throw new AppError("Password is incorrect", 400);
+    }
+
+    await db.user.delete({
+        where: { id: userId },
+    });
+
+    return { message: "Account deleted successfully" };
+};
