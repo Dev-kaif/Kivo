@@ -15,7 +15,7 @@ export const useSocketStore = create<SocketState>((set, get) => ({
     connect: () => {
         if (get().socket?.connected) return;
 
-        const socket = io('http://localhost:8000', {
+        const socket = io(`${process.env.NEXT_PUBLIC_BACKEND_URL}`, {
             withCredentials: true,
             transports: ['websocket'],
         });
