@@ -1,10 +1,10 @@
 'use client';
 
-import React from 'react';
-import { ArrowRight, Sparkles, Users, Plus } from 'lucide-react';
+import { ArrowRight, Sparkles } from 'lucide-react';
 import Link from 'next/link';
+import { motion } from 'motion/react';
 
-export const Hero = () => {
+export const Hero = ({ isLoggedIn }: { isLoggedIn: boolean }) => {
     return (
         <section
             className="relative pt-20 pb-28 px-6 overflow-hidden"
@@ -21,35 +21,82 @@ export const Hero = () => {
             <div className="max-w-7xl mx-auto relative z-10">
                 <div className="text-center max-w-4xl mx-auto">
 
-                    <span className="inline-flex items-center gap-1.5 bg-sky-50 text-sky-600 border border-sky-200 rounded-full px-4 py-1.5 text-xs font-semibold tracking-wide uppercase mb-6 animate-in fade-in slide-in-from-top-1 duration-500">
+                    {/* Badge */}
+                    <motion.span
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5 }}
+                        className="inline-flex items-center gap-1.5 bg-sky-50 text-sky-600 border border-sky-200 rounded-full px-4 py-1.5 text-xs font-semibold tracking-wide uppercase mb-6"
+                    >
                         <Sparkles className="w-3 h-3" />
                         Simple project management
-                    </span>
+                    </motion.span>
 
-                    <h1 className="font-bold text-5xl sm:text-6xl lg:text-7xl leading-[1.1] tracking-tight mb-6 animate-in fade-in slide-in-from-top-2 duration-500 delay-100">
+                    {/* Heading */}
+                    <motion.h1
+                        initial={{ opacity: 0, y: -30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.1 }}
+                        className="font-bold text-5xl sm:text-6xl lg:text-7xl leading-[1.1] tracking-tight mb-6"
+                    >
                         Organize Your Work,<br />
                         <span className="bg-linear-to-r from-sky-500 to-blue-600 bg-clip-text text-transparent">
                             Simply.
                         </span>
-                    </h1>
+                    </motion.h1>
 
-                    <p className="text-slate-600 text-lg sm:text-xl leading-relaxed max-w-2xl mx-auto mb-10 animate-in fade-in slide-in-from-top-3 duration-500 delay-200">
+                    {/* Paragraph */}
+                    <motion.p
+                        initial={{ opacity: 0, y: -30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.2 }}
+                        className="text-slate-600 text-lg sm:text-xl leading-relaxed max-w-2xl mx-auto mb-10"
+                    >
                         Create boards, manage tasks, and collaborate in real-time without the clutter.
-                    </p>
+                    </motion.p>
 
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-in fade-in slide-in-from-top-4 duration-500 delay-300">
-                        <Link href={"/signup"} className="group px-8 py-3.5 text-base font-semibold text-white bg-linear-to-r from-sky-500 to-blue-600 rounded-xl shadow-lg shadow-sky-500/30 hover:shadow-xl hover:shadow-sky-500/40 hover:-translate-y-0.5 transition-all flex items-center gap-2">
-                            Get Started it's free
-                            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                        </Link>
-                        <a href="#how-it-works" className="px-8 py-3.5 text-base font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-all">
+                    {/* Buttons */}
+                    <motion.div
+                        initial={{ opacity: 0, y: -30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.3 }}
+                        className="flex flex-col sm:flex-row items-center justify-center gap-4"
+                    >
+                        {
+                            isLoggedIn ?
+                                <Link
+                                    href={"/signup"}
+                                    className="px-8 py-3.5 text-base font-semibold text-white bg-linear-to-r from-sky-500 to-blue-600 rounded-xl shadow-lg shadow-sky-500/30 flex items-center gap-2"
+                                >
+                                    Get Started it's free
+                                    <ArrowRight className="w-4 h-4" />
+                                </Link>
+                                :
+                                <Link
+                                    href={"/dashboard"}
+                                    className="px-8 py-3.5 text-base font-semibold text-white bg-linear-to-r from-sky-500 to-blue-600 rounded-xl shadow-lg shadow-sky-500/30 flex items-center gap-2"
+                                >
+                                    Continue To Dashboard
+                                    <ArrowRight className="w-4 h-4" />
+                                </Link>
+                        }
+
+                        <a
+                            href="#how-it-works"
+                            className="px-8 py-3.5 text-base font-semibold text-slate-600 hover:bg-slate-100 rounded-xl"
+                        >
                             See how it works
                         </a>
-                    </div>
+                    </motion.div>
                 </div>
 
                 {/* Dashboard Preview */}
-                <div className="mt-20 max-w-5xl mx-auto animate-in fade-in zoom-in-95 duration-700 delay-400">
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.7, delay: 0.4 }}
+                    className="mt-20 max-w-5xl mx-auto"
+                >
                     <div className="bg-white border border-slate-200 rounded-3xl shadow-2xl shadow-slate-300/40 overflow-hidden">
 
                         <div className="flex items-center gap-2 px-6 py-2 bg-slate-100 border-b border-slate-200">
@@ -58,7 +105,6 @@ export const Hero = () => {
                             <div className="w-3 h-3 rounded-full bg-emerald-400" />
                         </div>
 
-                        {/* Image Container */}
                         <div className="relative bg-slate-50">
                             <img
                                 src="/main/dashboard.png"
@@ -68,8 +114,7 @@ export const Hero = () => {
                         </div>
 
                     </div>
-                </div>
-
+                </motion.div>
             </div>
         </section>
     );

@@ -6,7 +6,7 @@ import { Menu, X } from 'lucide-react';
 import { motion, AnimatePresence, animate } from 'motion/react';
 import Link from 'next/link';
 
-export const Navbar = () => {
+export const Navbar = ({ isLoggedIn }: { isLoggedIn: boolean }) => {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -88,13 +88,31 @@ export const Navbar = () => {
 
                     {/* Desktop Buttons */}
                     <div className="hidden md:flex items-center gap-3">
-                        <Link href="/login" className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-xl">
-                            Log in
-                        </Link>
-                        <Link href="/signup" className="px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-sky-500 to-blue-600 rounded-xl shadow-lg">
-                            Get Started
-                        </Link>
+                        {isLoggedIn ? (
+                            <>
+                                <Link
+                                    href="/login"
+                                    className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-xl"
+                                >
+                                    Log in
+                                </Link>
+                                <Link
+                                    href="/signup"
+                                    className="px-6 py-3 text-sm font-semibold text-white bg-linear-to-r from-sky-500 to-blue-600 rounded-xl shadow-lg"
+                                >
+                                    Get Started
+                                </Link>
+                            </>
+                        ) : (
+                            <Link
+                                href="/dashboard"
+                                className="px-6 py-3 text-sm font-semibold text-white bg-linear-to-r from-sky-500 to-blue-600 rounded-xl shadow-lg"
+                            >
+                                Dashboard
+                            </Link>
+                        )}
                     </div>
+
 
                     {/* Mobile Toggle */}
                     <button
@@ -155,12 +173,33 @@ export const Navbar = () => {
                                     </a>
 
                                     <div className="flex flex-col gap-3 pt-4 border-t">
-                                        <button className="w-full px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-xl">
-                                            Log in
-                                        </button>
-                                        <button className="w-full px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-sky-500 to-blue-600 rounded-xl">
-                                            Get Started
-                                        </button>
+                                        {isLoggedIn ? (
+                                            <>
+                                                <Link
+                                                    href="/login"
+                                                    onClick={() => setIsMobileMenuOpen(false)}
+                                                    className="w-full px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-xl text-center"
+                                                >
+                                                    Log in
+                                                </Link>
+
+                                                <Link
+                                                    href="/signup"
+                                                    onClick={() => setIsMobileMenuOpen(false)}
+                                                    className="w-full px-6 py-3 text-sm font-semibold text-white bg-linear-to-r from-sky-500 to-blue-600 rounded-xl text-center"
+                                                >
+                                                    Get Started
+                                                </Link>
+                                            </>
+                                        ) : (
+                                            <Link
+                                                href="/dashboard"
+                                                onClick={() => setIsMobileMenuOpen(false)}
+                                                className="w-full px-6 py-3 text-sm font-semibold text-white bg-linear-to-r from-sky-500 to-blue-600 rounded-xl text-center"
+                                            >
+                                                Dashboard
+                                            </Link>
+                                        )}
                                     </div>
                                 </nav>
                             </motion.div>

@@ -36,12 +36,12 @@ export const CreateBoardCard = () => {
     };
 
     return (
-        <Card className="shadow-none">
-            <CardContent className="p-6 space-y-5">
+        <Card className="rounded-xl border bg-card shadow-none min-h-60">
+            <CardContent className="p-6 flex flex-col gap-4">
 
                 {/* Header */}
                 <div>
-                    <h2 className="text-base font-semibold">
+                    <h2 className="text-base font-semibold tracking-tight">
                         Create New Board
                     </h2>
                     <p className="text-sm text-muted-foreground mt-1">
@@ -50,7 +50,7 @@ export const CreateBoardCard = () => {
                 </div>
 
                 {/* Input */}
-                <div className="space-y-2">
+                <div className="flex flex-col gap-3 mt-2">
                     <Input
                         placeholder="Board title..."
                         value={title}
@@ -72,7 +72,7 @@ export const CreateBoardCard = () => {
                 <Button
                     onClick={handleCreate}
                     disabled={loading || !title.trim()}
-                    className="w-full"
+                    className="h-10 w-full"
                 >
                     {loading ? (
                         <>

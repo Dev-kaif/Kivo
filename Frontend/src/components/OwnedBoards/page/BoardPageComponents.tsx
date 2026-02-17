@@ -19,7 +19,7 @@ export const OwnedBoardsHeader = () => {
     return (
         <EntityHeader
             title="My Boards"
-            discription="Boards you created"
+            discription="Your personal workspaces and projects."
             newButtonLable="Create Board"
             newButtonHref="/dashboard"
         />

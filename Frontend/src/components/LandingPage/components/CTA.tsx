@@ -1,14 +1,13 @@
 'use client';
 
-import React from 'react';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 
-export const CTA = () => {
+export const CTA = ({ isLoggedIn }: { isLoggedIn: boolean }) => {
     return (
         <section className="py-24 px-6 bg-white">
             <div className="max-w-5xl mx-auto">
-                <div className="relative bg-gradient-to-r from-sky-500 to-blue-600 rounded-3xl px-8 sm:px-12 py-16 sm:py-20 text-center overflow-hidden shadow-2xl shadow-sky-500/30">
+                <div className="relative bg-linear-to-r from-sky-500 to-blue-600 rounded-3xl px-8 sm:px-12 py-16 sm:py-20 text-center overflow-hidden shadow-2xl shadow-sky-500/30">
                     {/* Decorative elements */}
                     <div className="absolute -top-12 -left-12 w-48 h-48 bg-white/10 rounded-full blur-2xl" />
                     <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
@@ -33,13 +32,32 @@ export const CTA = () => {
                         </p>
 
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                            <Link href="/signup" className="group px-8 py-3.5 text-base font-semibold text-sky-600 bg-white hover:bg-sky-50 rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2">
-                                Get Started Free
-                                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                            </Link>
-                            <Link href="/login" className="px-8 py-3.5 text-base font-semibold text-white bg-white/15 hover:bg-white/25 rounded-xl transition-all border border-white/30 backdrop-blur-sm">
-                                Log in
-                            </Link>
+                            {isLoggedIn ? (
+                                <>
+                                    <Link
+                                        href="/signup"
+                                        className="group px-8 py-3.5 text-base font-semibold text-sky-600 bg-white hover:bg-sky-50 rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
+                                    >
+                                        Get Started Free
+                                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                    </Link>
+
+                                    <Link
+                                        href="/login"
+                                        className="px-8 py-3.5 text-base font-semibold text-white bg-white/15 hover:bg-white/25 rounded-xl transition-all border border-white/30 backdrop-blur-sm"
+                                    >
+                                        Log in
+                                    </Link>
+                                </>
+                            ) : (
+                                <Link
+                                    href="/dashboard"
+                                    className="group px-8 py-3.5 text-base font-semibold text-sky-600 bg-white hover:bg-sky-50 rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
+                                >
+                                    Continue to Dashboard
+                                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                </Link>
+                            )}
                         </div>
                     </div>
                 </div>

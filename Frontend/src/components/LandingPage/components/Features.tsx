@@ -48,7 +48,7 @@ export const Features = () => {
 
                     <h2 className="font-bold text-4xl sm:text-5xl lg:text-6xl tracking-tight mb-5">
                         Built for how teams{' '}
-                        <span className="bg-gradient-to-r from-sky-500 to-blue-600 bg-clip-text text-transparent">
+                        <span className="bg-linear-to-r from-sky-500 to-blue-600 bg-clip-text text-transparent">
                             actually work
                         </span>
                     </h2>
@@ -68,11 +68,11 @@ export const Features = () => {
                                 className="group relative bg-white border border-slate-200 rounded-2xl p-7 shadow-sm hover:shadow-xl hover:shadow-slate-200/60 transition-all duration-300 hover:-translate-y-1"
                             >
                                 {/* Gradient overlay on hover */}
-                                <div className="absolute inset-0 bg-gradient-to-br from-sky-50/50 to-blue-50/50 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                <div className="absolute inset-0 bg-linear-to-r from-sky-50/50 to-blue-50/50 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
                                 <div className="relative z-10">
                                     {/* Icon */}
-                                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-sky-100 to-blue-100 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                                    <div className="w-12 h-12 rounded-xl bg-linear-to-r from-sky-100 to-blue-100 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                                         <Icon className="w-6 h-6 text-sky-600" strokeWidth={2} />
                                     </div>
 

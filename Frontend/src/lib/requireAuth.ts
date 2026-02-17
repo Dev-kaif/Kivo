@@ -14,3 +14,15 @@ export async function requireAuth() {
         redirect("/login");
     }
 }
+
+export async function checkAuth() {
+    try {
+        const api = await getServerApi();
+        const response = await api.get("/auth/me");
+
+        return response.data;
+
+    } catch (err: any) {
+        return null;
+    }
+}

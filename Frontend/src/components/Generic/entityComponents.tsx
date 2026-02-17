@@ -62,6 +62,7 @@ export const EntityHeader = ({
             )}
             {newButtonHref && !onNewFunction && (
                 <Button
+                    variant={"secondary"}
                     size={"sm"}
                     asChild
                 >

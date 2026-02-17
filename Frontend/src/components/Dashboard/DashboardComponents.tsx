@@ -139,13 +139,7 @@ export const RecentBoardsList = ({
                                         if (isEditing) e.preventDefault();
                                     }}
                                 >
-                                    <Card
-                                        className={cn(
-                                            "px-5 py-4 shadow-none transition-all duration-200",
-                                            "hover:shadow-sm hover:border-primary/30 hover:bg-muted/30",
-                                            "cursor-pointer rounded-xl"
-                                        )}
-                                    >
+                                    <Card className="rounded-xl border bg-card shadow-none px-5 py-4 transition-all duration-200 hover:bg-muted/30">
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-4 flex-1">
 
@@ -293,8 +287,7 @@ export const RecentActivityCard = ({
 
     return (
         <Card className="shadow-none">
-            <CardContent className="p-6 space-y-5 min-h-55">
-
+            <CardContent className="p-6 space-y-5 min-h-60">
                 <div>
                     <h2 className="text-base font-semibold tracking-tight">
                         Recent Activity

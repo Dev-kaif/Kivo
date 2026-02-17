@@ -10,10 +10,10 @@ export function DashboardContent() {
     });
 
     return (
-        <div className="space-y-5">
+        <div className="space-y-6">
 
             {/* Top Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <CreateBoardCard />
                 <RecentActivityCard
                     activities={activities}

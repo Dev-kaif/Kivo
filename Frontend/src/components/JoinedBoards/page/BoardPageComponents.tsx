@@ -19,7 +19,7 @@ export const JoinedBoardsHeader = () => {
     return (
         <EntityHeader
             title="Joined Boards"
-            discription="Boards you joined"
+            discription="Workspaces you’re collaborating in."
         />
     );
 };

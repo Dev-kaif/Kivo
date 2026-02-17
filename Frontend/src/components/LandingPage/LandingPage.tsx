@@ -4,15 +4,20 @@ import { HowItWorks } from './components/Work';
 import { CTA } from './components/CTA';
 import { Footer } from './components/Footer';
 import { Navbar } from './components/Navbar';
+import { checkAuth } from '@/lib/requireAuth';
 
-export default function LandingPage() {
+export default async function LandingPage() {
+
+    const data = await checkAuth();
+    const isLoggedIn = data == null ? true : false;
+
     return (
         <main className="min-h-screen bg-white">
-            <Navbar />
-            <Hero />
+            <Navbar isLoggedIn={isLoggedIn} />
+            <Hero isLoggedIn={isLoggedIn} />
             <Features />
             <HowItWorks />
-            <CTA />
+            <CTA isLoggedIn={isLoggedIn} />
             <Footer />
         </main>
     );
