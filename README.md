@@ -14,6 +14,15 @@ This project demonstrates modern full-stack architecture, real-time systems, str
 
 ---
 
+# 👤 Demo Credentials
+
+```
+Email: raven@gmail.com
+Password: 123456789
+```
+
+---
+
 # 📌 Project Overview
 
 Niro is a collaborative Kanban board system where users can:
@@ -558,15 +567,6 @@ http://localhost:8000/api
 | ------ | ------------------------- |
 | GET    | /activity/recent          |
 | GET    | /activity/boards/:boardId |
-
----
-
-# 👤 Demo Credentials
-
-```
-Email: raven@gmail.com
-Password: 123456789
-```
 
 ---
 
