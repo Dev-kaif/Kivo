@@ -8,7 +8,7 @@ async function handler(
 ) {
     const { path } = await context.params;
 
-    const url = `${BACKEND}/${path.join("/")}`;
+    const url = `${BACKEND}/${path.join("/")}${req.nextUrl.search}`;
 
     const response = await fetch(url, {
         method: req.method,
