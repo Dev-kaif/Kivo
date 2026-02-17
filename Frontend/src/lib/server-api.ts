@@ -8,7 +8,7 @@ export async function getServerApi() {
     const isProd = process.env.NODE_ENV === "production";
 
     const baseURL = isProd
-        ? `https://${process.env.NEXT_PUBLIC_FRONTEND_URL}/api`
+        ? `${process.env.NEXT_PUBLIC_FRONTEND_URL}/api`
         : "http://localhost:8000/api";
 
     return axios.create({
