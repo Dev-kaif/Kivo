@@ -70,12 +70,20 @@ export const RecentBoardsList = ({
 }: RecentBoardsListProps) => {
     const recentBoards = boards.slice(0, 3);
 
-    const { renameBoard, deleteBoard, isDeleting, isRenaming } = useOwnedBoardMutations();
+    const {
+        renameBoard,
+        deleteBoard,
+        isDeleting,
+        isRenaming,
+    } = useOwnedBoardMutations();
 
-    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-    const [selectedBoard, setSelectedBoard] = useState<Board | null>(null);
+    const [deleteDialogOpen, setDeleteDialogOpen] =
+        useState(false);
+    const [selectedBoard, setSelectedBoard] =
+        useState<Board | null>(null);
 
-    const [editingBoardId, setEditingBoardId] = useState<string | null>(null);
+    const [editingBoardId, setEditingBoardId] =
+        useState<string | null>(null);
     const [renameValue, setRenameValue] = useState("");
 
     const startRename = (board: Board) => {
@@ -136,22 +144,26 @@ export const RecentBoardsList = ({
                                     key={board.id}
                                     href={`/boards/${board.id}`}
                                     onClick={(e) => {
-                                        if (isEditing) e.preventDefault();
+                                        if (isEditing)
+                                            e.preventDefault();
                                     }}
                                 >
-                                    <Card className="rounded-xl border bg-card shadow-none px-5 py-4 transition-all duration-200 hover:bg-muted/30">
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-4 flex-1">
+                                    <Card className="rounded-xl border bg-card shadow-none px-4 sm:px-5 py-4 transition-all duration-200 hover:bg-muted/30">
+                                        <div className="flex items-start sm:items-center justify-between gap-3">
 
-                                                <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary shrink-0">
+                                            {/* LEFT SECTION */}
+                                            <div className="flex items-start gap-3 flex-1 min-w-0">
+
+                                                <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-lg bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary shrink-0">
                                                     {board.title
                                                         .slice(0, 2)
                                                         .toUpperCase()}
                                                 </div>
 
-                                                <div className="flex flex-col flex-1">
+                                                <div className="flex flex-col flex-1 min-w-0">
                                                     {isEditing ? (
-                                                        <div className="flex items-center gap-1">
+                                                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full">
+
                                                             <Input
                                                                 value={renameValue}
                                                                 onChange={(e) =>
@@ -160,53 +172,71 @@ export const RecentBoardsList = ({
                                                                     )
                                                                 }
                                                                 onKeyDown={(e) => {
-                                                                    if (e.key === "Enter")
-                                                                        confirmRename(board.id);
-                                                                    if (e.key === "Escape")
+                                                                    if (
+                                                                        e.key ===
+                                                                        "Enter"
+                                                                    )
+                                                                        confirmRename(
+                                                                            board.id
+                                                                        );
+                                                                    if (
+                                                                        e.key ===
+                                                                        "Escape"
+                                                                    )
                                                                         cancelRename();
                                                                 }}
                                                                 autoFocus
-                                                                className="h-8 text-sm w-54"
+                                                                className="h-8 text-sm w-full sm:w-54"
                                                             />
 
-                                                            <Button
-                                                                size="icon"
-                                                                variant="ghost"
-                                                                disabled={isRenaming}
-                                                                onClick={(e) => {
-                                                                    e.preventDefault();
-                                                                    confirmRename(board.id);
-                                                                }}
-                                                            >
-                                                                <CheckIcon className="size-4 text-green-600" />
-                                                            </Button>
+                                                            <div className="flex items-center gap-2">
+                                                                <Button
+                                                                    size="icon"
+                                                                    variant="ghost"
+                                                                    disabled={
+                                                                        isRenaming
+                                                                    }
+                                                                    onClick={(e) => {
+                                                                        e.preventDefault();
+                                                                        confirmRename(
+                                                                            board.id
+                                                                        );
+                                                                    }}
+                                                                >
+                                                                    <CheckIcon className="size-4 text-green-600" />
+                                                                </Button>
 
-                                                            <Button
-                                                                size="icon"
-                                                                variant="ghost"
-                                                                onClick={(e) => {
-                                                                    e.preventDefault();
-                                                                    cancelRename();
-                                                                }}
-                                                            >
-                                                                <XIcon className="size-4" />
-                                                            </Button>
+                                                                <Button
+                                                                    size="icon"
+                                                                    variant="ghost"
+                                                                    onClick={(e) => {
+                                                                        e.preventDefault();
+                                                                        cancelRename();
+                                                                    }}
+                                                                >
+                                                                    <XIcon className="size-4" />
+                                                                </Button>
+                                                            </div>
                                                         </div>
                                                     ) : (
                                                         <>
-                                                            <span className="text-sm font-medium">
+                                                            <span className="text-sm font-medium truncate">
                                                                 {board.title}
                                                             </span>
 
-                                                            <span className="text-xs text-muted-foreground">
-                                                                Owner: {board.owner.name}
+                                                            <span className="text-xs text-muted-foreground truncate">
+                                                                Owner:{" "}
+                                                                {
+                                                                    board.owner
+                                                                        .name
+                                                                }
                                                             </span>
                                                         </>
                                                     )}
                                                 </div>
                                             </div>
 
-                                            {/* Dropdown */}
+                                            {/* RIGHT DROPDOWN */}
                                             {!isEditing && (
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild>
@@ -214,7 +244,7 @@ export const RecentBoardsList = ({
                                                             onClick={(e) =>
                                                                 e.stopPropagation()
                                                             }
-                                                            className="p-1 rounded-md hover:bg-muted"
+                                                            className="p-1 rounded-md hover:bg-muted shrink-0"
                                                         >
                                                             <MoreVerticalIcon className="size-4" />
                                                         </button>
@@ -228,7 +258,9 @@ export const RecentBoardsList = ({
                                                     >
                                                         <DropdownMenuItem
                                                             onClick={() =>
-                                                                startRename(board)
+                                                                startRename(
+                                                                    board
+                                                                )
                                                             }
                                                         >
                                                             <PencilIcon className="size-4 mr-2" />
@@ -237,7 +269,9 @@ export const RecentBoardsList = ({
 
                                                         <DropdownMenuItem
                                                             onClick={() =>
-                                                                handleDeleteClick(board)
+                                                                handleDeleteClick(
+                                                                    board
+                                                                )
                                                             }
                                                             className="text-red-600 focus:text-red-600"
                                                         >

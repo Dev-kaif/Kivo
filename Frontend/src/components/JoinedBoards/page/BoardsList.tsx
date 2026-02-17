@@ -72,52 +72,51 @@ const BoardItem = ({ board }: { board: Board }) => {
     return (
         <Card
             className={cn(
-                "px-5 py-4 shadow-none transition-all duration-200",
+                "px-4 sm:px-5 py-4 shadow-none transition-all duration-200",
                 "hover:shadow-sm hover:border-primary/30 hover:bg-muted/30",
                 "rounded-xl"
             )}
         >
-            <div className="flex items-center justify-between">
-                {/* Left */}
-                <div className="flex items-center gap-4 flex-1">
-                    <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+
+                <div className="flex items-start gap-3 flex-1">
+                    <div className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-lg bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary">
                         {board.title.slice(0, 2).toUpperCase()}
                     </div>
 
-                    <div className="flex flex-col flex-1">
+                    <div className="flex flex-col flex-1 min-w-0">
                         {isEditing ? (
-                            <div className="flex items-center gap-2">
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full">
                                 <Input
                                     value={title}
-                                    onChange={(e) =>
-                                        setTitle(e.target.value)
-                                    }
+                                    onChange={(e) => setTitle(e.target.value)}
                                     autoFocus
-                                    className="h-8 text-sm w-52"
+                                    className="h-8 text-sm w-full sm:w-52"
                                     onKeyDown={(e) =>
-                                        e.key === "Enter" &&
-                                        handleRename()
+                                        e.key === "Enter" && handleRename()
                                     }
                                 />
 
-                                <CheckIcon
-                                    className="size-4 cursor-pointer text-green-600"
-                                    onClick={handleRename}
-                                />
+                                <div className="flex items-center gap-2">
+                                    <CheckIcon
+                                        className="size-4 cursor-pointer text-green-600"
+                                        onClick={handleRename}
+                                    />
 
-                                <XIcon
-                                    className="size-4 cursor-pointer text-muted-foreground"
-                                    onClick={() => {
-                                        setTitle(board.title);
-                                        setIsEditing(false);
-                                    }}
-                                />
+                                    <XIcon
+                                        className="size-4 cursor-pointer text-muted-foreground"
+                                        onClick={() => {
+                                            setTitle(board.title);
+                                            setIsEditing(false);
+                                        }}
+                                    />
+                                </div>
                             </div>
                         ) : (
                             <>
                                 <Link
                                     href={`/boards/${board.id}`}
-                                    className="text-sm font-medium"
+                                    className="text-sm font-medium truncate"
                                 >
                                     {board.title}
                                 </Link>
@@ -130,8 +129,7 @@ const BoardItem = ({ board }: { board: Board }) => {
                     </div>
                 </div>
 
-                {/* Right Section */}
-                <div className="flex items-center gap-4">
+                <div className="flex items-center justify-between sm:justify-end gap-3">
                     <span className="text-xs text-muted-foreground whitespace-nowrap">
                         Updated{" "}
                         {formatDistanceToNow(
