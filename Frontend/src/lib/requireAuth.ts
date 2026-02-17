@@ -1,9 +1,7 @@
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getServerApi } from "@/lib/server-api";
 
 export async function requireAuth() {
-    const cookieStore = await cookies();
 
     try {
         const api = await getServerApi();

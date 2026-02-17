@@ -5,8 +5,14 @@ export async function getServerApi() {
     const cookieStore = await cookies();
     const cookieHeader = cookieStore.toString();
 
+    const isProd = process.env.NODE_ENV === "production";
+
+    const baseURL = isProd
+        ? `https://${process.env.NEXT_PUBLIC_FRONTEND_URL}/api`
+        : "http://localhost:8000/api";
+
     return axios.create({
-        baseURL: `${process.env.NEXT_PUBLIC_FRONTEND_URL}/api`,
+        baseURL,
         withCredentials: true,
         headers: {
             Cookie: cookieHeader,

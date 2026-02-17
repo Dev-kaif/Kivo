@@ -11,10 +11,11 @@ export const signUpController = async (req: Request, res: Response) => {
 
         const { user, token } = await AuthService.signUp(validatedData);
 
+        const isProd = process.env.NODE_ENV === "production"
         res.cookie("token", token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            sameSite: "none",
+            sameSite: isProd ? "none" : "lax",
             maxAge: 7 * 24 * 60 * 60 * 1000,
         });
 
@@ -39,10 +40,12 @@ export const loginController = async (req: Request, res: Response) => {
 
         const { user, token } = await AuthService.login(validatedData);
 
+        const isProd = process.env.NODE_ENV === "production"
+
         res.cookie("token", token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            sameSite: "none",
+            sameSite: isProd ? "none" : "lax",
             maxAge: 7 * 24 * 60 * 60 * 1000,
         });
 
