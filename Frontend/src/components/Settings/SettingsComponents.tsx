@@ -229,7 +229,7 @@ export const ProfileCard = () => {
                     >
                         {isLoggingOut
                             ? "Signing out..."
-                            : "Logout"}
+                            : "Sign Out"}
                     </Button>
 
                     <Button
