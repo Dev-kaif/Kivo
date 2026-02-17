@@ -1,0 +1,91 @@
+.
+├── Backend
+│   ├── dist
+│   │   ├── generated
+│   │   │   └── prisma
+│   │   │       ├── internal
+│   │   │       └── models
+│   │   └── src
+│   │       ├── config
+│   │       ├── controllers
+│   │       ├── lib
+│   │       ├── middleware
+│   │       ├── routes
+│   │       ├── services
+│   │       ├── utils
+│   │       ├── validators
+│   │       └── websocket
+│   ├── prisma
+│   │   └── migrations
+│   │       ├── 20260214194609_database_architeccture
+│   │       ├── 20260215115917_new_action
+│   │       ├── 20260215123332_invite
+│   │       └── 20260216225729_updated
+│   └── src
+│       ├── config
+│       ├── controllers
+│       ├── lib
+│       ├── middleware
+│       ├── routes
+│       ├── services
+│       ├── types
+│       ├── utils
+│       ├── validators
+│       └── websocket
+└── Frontend
+   ├── public
+    │   └── main
+    └── src
+        ├── app
+        │   ├── (auth)
+        │   │   ├── login
+        │   │   └── signup
+        │   ├── (board)
+        │   │   └── boards
+        │   │       └── [id]
+        │   ├── (main)
+        │   │   ├── boards
+        │   │   ├── dashboard
+        │   │   ├── join
+        │   │   │   └── [token]
+        │   │   ├── joined
+        │   │   └── settings
+        │   └── api
+        │       └── [...path]
+        ├── components
+        │   ├── Auth
+        │   │   └── hooks
+        │   ├── board
+        │   │   ├── header
+        │   │   │   ├── activity
+        │   │   │   ├── members
+        │   │   │   └── share
+        │   │   └── hooks
+        │   ├── Dashboard
+        │   │   ├──  client
+        │   │   ├── hooks
+        │   │   ├── server
+        │   │   └── utils
+        │   ├── Generic
+        │   ├── JoinedBoards
+        │   │   ├── client
+        │   │   ├── hooks
+        │   │   ├── joinPage
+        │   │   ├── page
+        │   │   └── server
+        │   ├── LandingPage
+        │   │   └── components
+        │   ├── layout
+        │   ├── OwnedBoards
+        │   │   ├── client
+        │   │   ├── hooks
+        │   │   ├── page
+        │   │   └── server
+        │   ├── Settings
+        │   │   ├── hooks
+        │   │   └── server
+        │   ├── store
+        │   └── ui
+        ├── hooks
+        └── lib
+
