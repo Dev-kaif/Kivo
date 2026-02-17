@@ -16,10 +16,53 @@ This project demonstrates modern full-stack architecture, real-time systems, str
 
 # 👤 Demo Credentials
 
+## 🛡️ Admin Account
+
 ```
 Email: raven@gmail.com
 Password: 123456789
 ```
+
+---
+
+## 👥 Member Account
+
+```
+Email: chrome@gmail.com
+Password: 123456789
+```
+
+---
+
+# 🧭 Table of Contents
+
+- [👤 Demo Credentials](#-demo-credentials)
+- [📌 Project Overview](#-project-overview)
+- [🏗 System Architecture](#-system-architecture)
+  - [High-Level Architecture](#-high-level-architecture)
+  - [Architectural Design Decisions](#-architectural-design-decisions)
+  - [Scalability Strategy](#-scalability-strategy-summary)
+  - [Backend Architecture](#-backend-architecture-layered-pattern)
+  - [Frontend Architecture](#-frontend-architecture)
+
+- [🔐 Authentication & Security](#-authentication--security)
+- [👥 Role-Based Access Control](#-role-based-access-control)
+
+- [📦 Core Features](#-core-features)
+  - [Boards](#-boards)
+  - [Lists](#-lists)
+  - [Tasks](#-tasks)
+  - [Activity Logging System](#-activity-logging-system)
+  - [Invite System](#-invite-system)
+  - [Real-Time System](#-real-time-system)
+
+- [🗄 Database Design](#-database-design)
+- [🖥 Local Setup Guide](#-local-setup-guide)
+- [🔌 API Documentation](#-api-documentation)
+- [⚖ Assumptions](#-assumptions)
+- [⚠ Trade-offs & Limitations](#-trade-offs--limitations)
+- [🧠 Potential Improvements](#-potential-improvements)
+- [🎯 Key Technical Highlights](#-key-technical-highlights)
 
 ---
 
