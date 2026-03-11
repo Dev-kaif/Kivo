@@ -15,8 +15,8 @@ export const Hero = ({ isLoggedIn }: { isLoggedIn: boolean }) => {
             }}
         >
             {/* Decorative gradient blobs */}
-            <div className="absolute top-20 -left-40 w-96 h-96 bg-sky-400/20 rounded-full blur-3xl" />
-            <div className="absolute bottom-20 -right-40 w-96 h-96 bg-blue-400/20 rounded-full blur-3xl" />
+            {/* <div className="absolute top-20 -left-40 w-96 h-96 bg-sky-400/20 rounded-full blur-3xl" />
+            <div className="absolute bottom-20 -right-40 w-96 h-96 bg-blue-400/20 rounded-full blur-3xl" /> */}
 
             <div className="max-w-7xl mx-auto relative z-10">
                 <div className="text-center max-w-4xl mx-auto">
